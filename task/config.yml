@@ -1,0 +1,69 @@
+# Autoprefixer will make sure your CSS works with these browsers
+BROWSERS:
+    - "last 2 versions"
+    - "ie >= 9"
+
+# Browserify Configuration
+BROWSERIFY:
+
+    # Bootstrap
+    bootstrap:  "src/app/main.js"
+
+# Paths to Sass libraries, which can then be loaded with @import
+SASS:
+
+    # Path to source files
+    source: "src/scss"
+
+    # Path to output files
+    output: "dist/css"
+
+    # Path to import files
+    import:
+        - "bower_components/foundation-sites/scss"
+        - "bower_components/motion-ui/src"
+        - "bower_components/mdi/scss"
+
+# Gulp will reference these paths when it copies files
+PATHS:
+
+    # Path to source folder
+    app: "src/app"
+
+    # Path to dist folder
+    dist: "dist"
+
+    # Paths to Javascript vendors
+    vendors:
+        - "bower_components/jquery/dist/jquery.min.js"
+        - "bower_components/underscore/underscore-min.js"
+        - "bower_components/backbone/backbone-min.js"
+        - "bower_components/backbone.controller/backbone.controller.js"
+        - "bower_components/what-input/what-input.min.js"
+        - "bower_components/foundation-sites/js/foundation.core.js"
+        - "bower_components/foundation-sites/js/foundation.util.*.js"
+        - "bower_components/foundation-sites/js/foundation.abide.js"
+        - "bower_components/foundation-sites/js/foundation.accordion.js"
+        - "bower_components/foundation-sites/js/foundation.accordionMenu.js"
+        - "bower_components/foundation-sites/js/foundation.drilldown.js"
+        - "bower_components/foundation-sites/js/foundation.dropdown.js"
+        - "bower_components/foundation-sites/js/foundation.dropdownMenu.js"
+        - "bower_components/foundation-sites/js/foundation.equalizer.js"
+        - "bower_components/foundation-sites/js/foundation.interchange.js"
+        - "bower_components/foundation-sites/js/foundation.magellan.js"
+        - "bower_components/foundation-sites/js/foundation.offcanvas.js"
+        - "bower_components/foundation-sites/js/foundation.orbit.js"
+        - "bower_components/foundation-sites/js/foundation.responsiveMenu.js"
+        - "bower_components/foundation-sites/js/foundation.responsiveToggle.js"
+        - "bower_components/foundation-sites/js/foundation.reveal.js"
+        - "bower_components/foundation-sites/js/foundation.slider.js"
+        - "bower_components/foundation-sites/js/foundation.sticky.js"
+        - "bower_components/foundation-sites/js/foundation.tabs.js"
+        - "bower_components/foundation-sites/js/foundation.toggler.js"
+        - "bower_components/foundation-sites/js/foundation.tooltip.js"
+        - "bower_components/motion-ui/dist/motion-ui.min.js"
+        - "bower_components/slick/dist/slick.min.js"
+
+    # Paths to JavaScript application into one file
+    javascript:
+        - "app/**/*.js"

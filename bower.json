@@ -1,0 +1,19 @@
+{
+  "name": "BSK",
+  "version": "1.0.0",
+  "authors": [
+    "Iván Meléndez <argordmel@gmail.com>"
+  ],
+  "description": "Basic template for a new Foundation for Sites project with Backbone.",
+  "license": "MIT",
+  "dependencies": {
+    "foundation-sites": "~6.2.1",
+    "motion-ui": "~1.1.1",
+    "backbone": "^1.2.3",
+    "underscore": "^1.8.3",
+    "slick": "*",
+    "mdi": "^1.4.57",
+    "jquery": "~2.2.3",
+    "backbone.controller": "*"
+  }
+}

@@ -1,0 +1,28 @@
+// Import modules
+
+@import "modules";
+
+//Imports custom pages
+@import "pages/home";
+
+//Imports partials
+@import "pages/_shared/footer";
+
+//Global Style
+@media #{$small-up} {
+    body {
+
+    }
+}
+
+@media #{$medium-up} {
+    body {
+
+    }
+}
+
+@media #{$large-up} {
+    body {
+
+    }
+}
