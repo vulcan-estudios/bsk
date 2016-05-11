@@ -23,7 +23,7 @@ Thumbs.db
 .tmproj
 *.esproj
 nbproject
-.nebeans.xml
+.netbeans.xml
 .private
 .idea
 *.sublime-project
