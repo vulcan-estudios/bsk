@@ -30,7 +30,21 @@ module.exports = {
     // List all elements
     list: function() {
 
-        var Model       = new App.Model.Example({id: 4456});
+        var Model       = new App.Model.Example({id: 000, name: 'Model'});
+
+        var Collection  = new App.Model.Example().Collection([
+            {id: 123, name: 'A'},
+            {id: 456, name: 'B'},
+            {id: 789, name: 'C'},
+            Model
+        ]);
+
+        Collection.each(function (model, index, all) {
+            console.log(model.get("name"));
+            // A
+            // B
+            // C
+        });
 
         Model.on("change:id", function(model){
             var id = model.get("id");
@@ -38,10 +52,10 @@ module.exports = {
         });
 
         Model.set('id', 123);
+
         console.log(Model.get('id'));
 
-
-        App.View.render({data: Model.getElements() });
+        App.View.render({ data: Model.getElements() });
 
     },
 

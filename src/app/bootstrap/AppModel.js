@@ -12,7 +12,14 @@ module.exports  = function() {
 
     _(Models).each(function(model, key) {
 
-        objs[key]   = Backbone.Model.extend(model);
+        var collection  = function(data) {
+            var tmpCollection   = Backbone.Collection.extend({
+                model: App.Model[key]
+            });
+            return new tmpCollection(data);
+        };
+
+        objs[key]   = Backbone.Model.extend( _({}).extend(model, {Collection: collection}) );
 
     });
 
