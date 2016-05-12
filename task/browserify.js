@@ -19,13 +19,13 @@ module.exports = function (gulp, plugins, config, prod) {
     'use strict';
 
     return function () {
-        
+
         var paths   = [config.PATHS.app + '/**/*.js', config.PATHS.app + '/**/*.html'];
 
         gulp.watch(paths)
         .on('change',function (event) {
 
-            console.log('File ' + event.path + ' was ' + event.type);
+            plugins.gutil.log(plugins.gutil.colors.cyan('browserify: ') + plugins.gutil.colors.green('File ' + event.path + ' was ' + event.type));
 
             return plugins.browserify(config.BROWSERIFY.bootstrap)
             .plugin(plugins.pathmodify, {

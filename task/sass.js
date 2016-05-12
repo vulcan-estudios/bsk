@@ -20,7 +20,7 @@ module.exports = function (gulp, plugins, config, prod) {
         gulp.watch([config.SASS.source + '/**/*.scss'])
         .on('change',function (event) {
 
-            console.log('File ' + event.path + ' was ' + event.type);
+            plugins.gutil.log(plugins.gutil.colors.cyan('sass: ') + plugins.gutil.colors.green('File ' + event.path + ' was ' + event.type));
 
             return gulp.src([config.SASS.source + '/**/*.scss'])
             .pipe(plugins.sass({

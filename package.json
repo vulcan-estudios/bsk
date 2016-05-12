@@ -52,6 +52,7 @@
     "gulp-sass": "^2.3.0",
     "gulp-sourcemaps": "^2.0.0-alpha",
     "gulp-uglify": "^1.5.3",
+    "gulp-util": "^3.0.7",
     "js-yaml": "^3.6.0",
     "path": "^0.12.7",
     "pathmodify": "^0.5.0",

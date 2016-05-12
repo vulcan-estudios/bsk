@@ -15,6 +15,7 @@ plugins.browserify  = require('browserify');
 plugins.bulkify     = require('bulkify');
 plugins.folderify   = require('folderify');
 plugins.guglify     = require('gulp-uglify');
+plugins.gutil       = require('gulp-util');
 plugins.path        = require('path');
 plugins.pathmodify  = require('pathmodify');
 plugins.source      = require('vinyl-source-stream');
