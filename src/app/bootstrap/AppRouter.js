@@ -132,7 +132,7 @@ module.exports = {
         }
 
         // Run method
-        ObjController[this.action].apply(this, params);
+        ObjController[this.action].apply(ObjController, params);
 
     },
 
