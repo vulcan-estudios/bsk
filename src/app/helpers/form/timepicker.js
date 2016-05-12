@@ -1,6 +1,8 @@
 /**
  *
- * Datepicker
+ * Password
+ *
+ * <input type="password />
  *
  */
 
@@ -14,6 +16,5 @@ module.exports   = {
     init: function(element) {
 
     }
-
 
 };

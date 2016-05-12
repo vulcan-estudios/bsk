@@ -5,9 +5,13 @@ $(document).ready(function() {
     // Run application
     window.App  = new Bootstrap();
     App.Router.dispatch();
-    
+
 });
 
+
+//
+// THIS CODE IS AN EXAMPLE
+//
 
 $('body').on('click', 'a', function(e) {
     e.preventDefault();
