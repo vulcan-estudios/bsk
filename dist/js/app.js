@@ -247,9 +247,9 @@ module.exports = {
             return;
         }
 
-        // Render View
+        // Render View and append module, controller and action into shell
         var config = {
-            el:     $(App.Config.SHELL_CONTAINER),
+            el:     $(App.Config.SHELL_CONTAINER).attr('data-module', module).attr('data-controller', controller).attr('data-action', action),
             data:   data
         };
 
