@@ -9,6 +9,17 @@ BROWSERIFY:
     # Bootstrap
     bootstrap:  "src/app/main.js"
 
+    # Shorcuts
+    shortcuts:
+        - type: "dir"
+          name: "helpers"
+          path: "./src/app/helpers"
+          
+        - type: "dir"
+          name: "libs"
+          path: "./src/app/libs"
+
+
 # Paths to Sass libraries, which can then be loaded with @import
 SASS:
 
@@ -61,8 +72,13 @@ PATHS:
         - "bower_components/foundation-sites/js/foundation.tabs.js"
         - "bower_components/foundation-sites/js/foundation.toggler.js"
         - "bower_components/foundation-sites/js/foundation.tooltip.js"
+        - "bower_components/foundation-datepicker/js/foundation-datepirkcer.min.js"
         - "bower_components/motion-ui/dist/motion-ui.min.js"
         - "bower_components/slick/dist/slick.min.js"
+        - "bower_components/Sortable/Sortable.min.js"
+        - "bower_components/moment/min/moment.min.js"
+        #- "bower_components/moment/min/locales.min.js"
+        - "bower_components/jquery.serializeJSON/jquery.serializejson.min.js"
 
     # Paths to JavaScript application into one file
     javascript:

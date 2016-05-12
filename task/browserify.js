@@ -11,12 +11,15 @@
  * @example gulp clean
  * @see gulpfile.js
  */
+
+var S = require('string');
+
 module.exports = function (gulp, plugins, config, prod) {
 
     'use strict';
 
     return function () {
-
+        
         var paths   = [config.PATHS.app + '/**/*.js', config.PATHS.app + '/**/*.html'];
 
         gulp.watch(paths)
@@ -25,6 +28,14 @@ module.exports = function (gulp, plugins, config, prod) {
             console.log('File ' + event.path + ' was ' + event.type);
 
             return plugins.browserify(config.BROWSERIFY.bootstrap)
+            .plugin(plugins.pathmodify, {
+                mods: config.BROWSERIFY.shortcuts.map (function(s) {
+                    var type    = s.type;
+                    var name    = s.name;
+                    var path    = S(__dirname).chompRight('task') + S(s.path).chompLeft('./');
+                    return plugins.pathmodify.mod[type](name, path);
+                })
+            })
             .transform(plugins.stringify)
             .transform(plugins.bulkify)
             .bundle().on('error', function (err) {

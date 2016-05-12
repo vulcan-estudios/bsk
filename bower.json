@@ -14,6 +14,10 @@
     "slick": "*",
     "mdi": "^1.4.57",
     "jquery": "~2.2.3",
-    "backbone.controller": "*"
+    "backbone.controller": "*",
+    "moment": "^2.13.0",
+    "Sortable": "^1.4.2",
+    "jquery.serializeJSON": "^2.7.2",
+    "foundation-datepicker": "^1.5.3"
   }
 }
