@@ -248,8 +248,9 @@ module.exports = {
         }
 
         // Render View and append module, controller and action into shell
+        $('body').attr('data-module', module);
         var config = {
-            el:     $(App.Config.SHELL_CONTAINER).attr('data-module', module).attr('data-controller', controller).attr('data-action', action),
+            el:     $(App.Config.SHELL_CONTAINER).attr('data-controller', controller).attr('data-action', action),
             data:   data
         };
 
@@ -538,9 +539,13 @@ $(document).ready(function() {
     // Run application
     window.App  = new Bootstrap();
     App.Router.dispatch();
-    
+
 });
 
+
+//
+// THIS CODE IS AN EXAMPLE
+//
 
 $('body').on('click', 'a', function(e) {
     e.preventDefault();
