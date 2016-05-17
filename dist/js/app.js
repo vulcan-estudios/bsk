@@ -195,7 +195,7 @@ module.exports = {
         }
 
         // Run method
-        ObjController[this.action].apply(this, params);
+        ObjController[this.action].apply(ObjController, params);
 
     },
 
@@ -215,6 +215,7 @@ module.exports = {
  */
 
 var Views           = ({"views":({"home":(function () {var f = require("../views/home/index.js");f["index"]=require("../views/home/index.js");f["list"]=require("../views/home/list.js");return f;})()})}).views;
+var Partials        = ({"views":({"_shared":({"partials":({"folder":({"test3":require("../views/_shared/partials/folder/test3.html")}),"test1":require("../views/_shared/partials/test1.html"),"test2":require("../views/_shared/partials/test2.html"),"test4":require("../views/_shared/partials/test4.html")})})})}).views._shared.partials;
 
 module.exports = {
 
@@ -266,10 +267,30 @@ module.exports = {
         var View        = Backbone.View.extend(_.extend(config, toRender));
         return new View();
 
+    },
+
+    partial: function(partial, data) {
+
+        var tmpFolder   = partial.split('/');
+        var hasFolder   = tmpFolder.length > 1 ? true : false;
+
+        if(hasFolder) {
+            var html    = tmpFolder[1];
+            var folder  = tmpFolder[0];
+            partial     = Partials[folder][html];
+        } else {
+            partial     = Partials[partial];
+        }
+        if(!partial) {
+            console.error("PARTIAL", partial, "NOT FOUND INTO views/_shared/partials");
+            return false;
+        }
+        return _.template(partial)(data);
+
     }
 
 };
-},{"../views/home/index.js":15,"../views/home/list.js":16}],6:[function(require,module,exports){
+},{"../views/_shared/partials/folder/test3.html":15,"../views/_shared/partials/test1.html":16,"../views/_shared/partials/test2.html":17,"../views/_shared/partials/test4.html":18,"../views/home/index.js":19,"../views/home/list.js":20}],6:[function(require,module,exports){
 /**
  * App Configuration
  *
@@ -598,6 +619,17 @@ module.exports = {
 
 };
 },{}],15:[function(require,module,exports){
+module.exports = "<h2>Test 1: <%= hola %></h2>";
+
+},{}],16:[function(require,module,exports){
+arguments[4][15][0].apply(exports,arguments)
+},{"dup":15}],17:[function(require,module,exports){
+module.exports = "<h2>Test 2: <%= hola %></h2>";
+
+},{}],18:[function(require,module,exports){
+module.exports = "<h2>Test 4 without data</h2>";
+
+},{}],19:[function(require,module,exports){
 var view        = _.template(require('./templates/index.html'));
 
 module.exports  = {
@@ -610,7 +642,7 @@ module.exports  = {
     }
 
 };
-},{"./templates/index.html":17}],16:[function(require,module,exports){
+},{"./templates/index.html":21}],20:[function(require,module,exports){
 var view        = _.template(require('./templates/list.html'));
 
 module.exports  = {
@@ -623,10 +655,10 @@ module.exports  = {
     }
 
 };
-},{"./templates/list.html":18}],17:[function(require,module,exports){
-module.exports = "<h1>Index</h1>";
+},{"./templates/list.html":22}],21:[function(require,module,exports){
+module.exports = "<%= App.View.partial('test1', {hola: 'hola'}) %>\n\n<h1>Index</h1>\n\n<%= App.View.partial('test2', {hola: 'mundo'}) %>\n\n<h1>More Partials</h1>\n\n<%= App.View.partial('test2', {hola: 'mundo 2 repetido'}) %>\n\n<%= App.View.partial('folder/test3', {hola: 'folder 3'}) %>\n\n<%= App.View.partial('test4') %>";
 
-},{}],18:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 module.exports = "<h1>List <%= data %></h1>";
 
 },{}]},{},[13]);

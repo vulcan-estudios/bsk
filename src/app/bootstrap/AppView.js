@@ -5,6 +5,7 @@
  */
 
 var Views           = require('bulk-require')(__dirname + '/..', ['./views/**/*.js']).views;
+var Partials        = require('bulk-require')(__dirname + '/..', ['./views/_shared/partials/**/*.html']).views._shared.partials;
 
 module.exports = {
 
@@ -55,6 +56,26 @@ module.exports = {
 
         var View        = Backbone.View.extend(_.extend(config, toRender));
         return new View();
+
+    },
+
+    partial: function(partial, data) {
+
+        var tmpFolder   = partial.split('/');
+        var hasFolder   = tmpFolder.length > 1 ? true : false;
+
+        if(hasFolder) {
+            var html    = tmpFolder[1];
+            var folder  = tmpFolder[0];
+            partial     = Partials[folder][html];
+        } else {
+            partial     = Partials[partial];
+        }
+        if(!partial) {
+            console.error("PARTIAL", partial, "NOT FOUND INTO views/_shared/partials");
+            return false;
+        }
+        return _.template(partial)(data);
 
     }
 
