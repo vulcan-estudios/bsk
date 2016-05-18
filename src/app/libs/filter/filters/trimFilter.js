@@ -5,9 +5,9 @@
  * return 'tom string'
  *
  */
-module.export   = {
+module.exports   = {
 
-    exce: function(str, opt) {
+    exec: function(str, opt) {
         if (opt) {
             while (str.charAt(0) == opt)
                 str = str.substr(1, str.length - 1);
