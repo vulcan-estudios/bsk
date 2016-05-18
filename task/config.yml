@@ -14,7 +14,7 @@ BROWSERIFY:
         - type: "dir"
           name: "helpers"
           path: "./src/app/helpers"
-          
+
         - type: "dir"
           name: "libs"
           path: "./src/app/libs"
@@ -79,6 +79,7 @@ PATHS:
         - "bower_components/moment/min/moment.min.js"
         #- "bower_components/moment/min/locales.min.js"
         - "bower_components/jquery.serializeJSON/jquery.serializejson.min.js"
+        - "bower_components/jquery.cookie/jquery.cookie.js"
 
     # Paths to JavaScript application into one file
     javascript:
