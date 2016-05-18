@@ -10,15 +10,15 @@ module.exports = {
     // Internal Routes
     routes: {
 
-        'home':                 'index',
+        'home':                 'home',
         'home/get/:id':         'get',
         'home/list':            'list',
         'home/redirect':        'redirect'
 
     },
 
-    // Index
-    index: function() {
+    // Home
+    home: function() {
 
         var Model       = new App.Model.Example();
         console.log(Model.get('id'));
