@@ -8,9 +8,12 @@ var AppRouter       = require('./AppRouter');
 var AppView         = require('./AppView');
 var AppModel        = require('./AppModel');
 
+// Helpers
+var Flash           = require('helpers/flash/flash');
+
 // Libs
 var Zurb            = require('libs/zurb/Zurb');
-var Filter          = require('libs/filter/Filter')
+var Filter          = require('libs/filter/Filter');
 
 module.exports = function() {
 
@@ -18,6 +21,6 @@ module.exports = function() {
 
     Zurb.init();
 
-    return { Config: Config, Router: new Router(), Model: new AppModel(), View: AppView, Filter: Filter };
+    return { Config: Config, Flash: Flash.init(), Router: new Router(), Model: new AppModel(), View: AppView, Filter: Filter };
 
 };

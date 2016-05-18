@@ -69,8 +69,9 @@ module.exports = {
     // Redirect to other url
     redirect: function() {
 
-        console.log("entra al redirect");
-        App.Router.to('home/list');
+        App.Router.to('home/list', function() {
+            App.Flash.valid('Redirect');
+        });
 
     }
 

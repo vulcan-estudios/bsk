@@ -137,9 +137,14 @@ module.exports = {
     },
 
     // Redirect to url
-    to: function(target) {
+    to: function(target, cb) {
 
         this.navigate(target, {trigger: true});
+        if(cb) {
+            setTimeout(function() {
+                cb();
+            }, 200);
+        }
 
     }
 
