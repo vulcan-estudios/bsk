@@ -9,14 +9,20 @@ var AppRouter       = require('./AppRouter');
 var AppView         = require('./AppView');
 var AppModel        = require('./AppModel');
 
+// Libs
+var Zurb            = require('libs/zurb/Zurb');
+var Filter          = require('libs/filter/Filter')
+
 module.exports = function() {
 
     var Router      = Backbone.Router.extend(AppRouter);
 
-    return { Config: Config, Router: new Router(), Model: new AppModel(), View: AppView };
+    Zurb.init();
+
+    return { Config: Config, Router: new Router(), Model: new AppModel(), View: AppView, Filter: Filter };
 
 };
-},{"../config/config":6,"./AppModel":3,"./AppRouter":4,"./AppView":5}],2:[function(require,module,exports){
+},{"../config/config":6,"./AppModel":3,"./AppRouter":4,"./AppView":5,"libs/filter/Filter":13,"libs/zurb/Zurb":17}],2:[function(require,module,exports){
 /**
  * App Configuration
  *
@@ -60,7 +66,7 @@ module.exports  = function() {
     return objs;
 
 };
-},{"../models/Example.js":14}],4:[function(require,module,exports){
+},{"../models/Example.js":20}],4:[function(require,module,exports){
 /**
  * Router
  *
@@ -290,7 +296,7 @@ module.exports = {
     }
 
 };
-},{"../views/_shared/partials/folder/test3.html":15,"../views/_shared/partials/test1.html":16,"../views/_shared/partials/test2.html":17,"../views/_shared/partials/test4.html":18,"../views/home/index.js":19,"../views/home/list.js":20}],6:[function(require,module,exports){
+},{"../views/_shared/partials/folder/test3.html":21,"../views/_shared/partials/test1.html":22,"../views/_shared/partials/test2.html":23,"../views/_shared/partials/test4.html":24,"../views/home/index.js":25,"../views/home/list.js":26}],6:[function(require,module,exports){
 /**
  * App Configuration
  *
@@ -574,6 +580,203 @@ module.exports = {
 
 };
 },{}],13:[function(require,module,exports){
+/**
+ * Filter
+ *
+ * Filter.get(' custom string', 'trim');
+ * return 'custom
+ *
+ */
+
+var Filters     = ({"ltrimFilter":require("./filters/ltrimFilter.js"),"rtrimFilter":require("./filters/rtrimFilter.js"),"trimFilter":require("./filters/trimFilter.js")});
+
+module.exports  = {
+
+    get: function(str, filters, opts) {
+
+        var _this       = this;
+
+        if(Array.isArray(filters)) {
+            filters.forEach(function(filter) {
+                var f   = _this.load(filter);
+                str     = f.exec(str, opts);
+            });
+            return str;
+        } else {
+            var f       = _this.load(filters);
+            return f.exec(str, opts);
+        }
+
+    },
+
+    load: function(filter) {
+        if(!Filters[filter+'Filter']) {
+            console.error("FILTER", filter, "NOT FOUND INTO /libs/filter/filters");
+        }
+        return Filters[filter+'Filter'];
+    }
+
+
+
+};
+},{"./filters/ltrimFilter.js":14,"./filters/rtrimFilter.js":15,"./filters/trimFilter.js":16}],14:[function(require,module,exports){
+/**
+ * Filter ltrim
+ *
+ * Filter.get('custom string', 'ltrim', 'cus');
+ * return 'tom string'
+ *
+ */
+module.exports   = {
+
+    exec: function(str, opt) {
+        if (opt) {
+            while (str.charAt(0) == opt)
+                str = str.substr(1, str.length - 1);
+        } else {
+            while (str.charAt(0) == " ")
+                str = str.substr(1, str.length - 1);
+        }
+        return str;
+    }
+
+};
+},{}],15:[function(require,module,exports){
+/**
+ * Filter ltrim
+ *
+ * Filter.get('custom string', 'ltrim', 'cus');
+ * return 'tom string'
+ *
+ */
+module.exports   = {
+
+    exec: function(str, opt) {
+        if (opt) {
+            while (str.charAt(str.length - 1) == opt)
+                str = str.substr(0, str.length - 1);
+        } else {
+            while (str.charAt(str.length - 1) == " ")
+                str = str.substr(0, str.length - 1);
+        }
+        return str;
+    }
+
+};
+},{}],16:[function(require,module,exports){
+arguments[4][14][0].apply(exports,arguments)
+},{"dup":14}],17:[function(require,module,exports){
+/**
+ * Utility for fundation
+ *
+ */
+
+var Abide       = require('libs/zurb/components/abide');
+
+module.exports  = {
+
+    /**
+     * Init
+     */
+    init: function() {
+
+        $(document).foundation();
+
+        // Abide
+        this.abide();
+
+    },
+
+    reflow: function() {
+
+        // Foundation.reInit() ?
+        Foundation.reflow();
+
+    },
+
+    /**
+     * Custom utility for abide
+     */
+    abide: function() {
+
+        // Merged
+        Foundation.Abide.defaults.patterns      = _.extend(Foundation.Abide.defaults.patterns,      Abide.patterns);
+        Foundation.Abide.defaults.validators    = _.extend(Foundation.Abide.defaults.validators,    Abide.validators);
+
+    }
+
+};
+},{"libs/zurb/components/abide":18}],18:[function(require,module,exports){
+/**
+ *
+ * Abide
+ *
+ * <form data-abide novalidate>
+ *
+ * </form>
+ *
+ */
+module.exports   = {
+
+    /*
+     * CUSTOM PATTERNS
+     *
+     * Example
+     * <input type="text" pattern="year" />
+     */
+    patterns: {
+
+        // Only positives number
+        'pint': /^[0-9]+$/,
+
+        // Year format
+        'year': /^(19|20)\d\d/,
+
+        // Month format
+        'month': /^(0[1-9]|1[012])/,
+
+        // Day format
+        'day': /^(0[1-9]|[12][0-9]|3[01])/,
+
+        // Currency format 1.00
+        'currency': /^((\d+)|(\d{1,3})(\,\d{3}|)*)(\.\d{2}|)$/
+    },
+
+    /*
+     * CUSTOM VALIDATORS
+     *
+     * Example:
+     * <input type="text" data-validator="multi-email" />
+     */
+    validators: {
+
+        // Validator for input with multiple email: a@b.com, c@d.com, e@f.com
+        'multi-email': function($el, required, parent) {
+
+            if(!$el.val()) { // $el is jQuery selector
+                return (required) ? false : true; // If not has val but is required
+            }
+
+            var valid   = true;
+
+            if($el.val()) {
+                var emails  = $el.val().split(',');
+                var pattern = Foundation.Abide.defaults.patterns.email;
+                $.each(emails, function(i, j) {
+                    if(!pattern.test( $.trim(emails[i]) )) {
+                        valid   = false;
+                        return false;
+                    }
+                });
+            }
+
+            return valid;
+
+        }
+    }
+
+};
+},{}],19:[function(require,module,exports){
 var Bootstrap   = require('./bootstrap/AppBootstrap');
 
 $(document).ready(function() {
@@ -594,7 +797,7 @@ $('body').on('click', 'a', function(e) {
     var target  = $(this).attr('href').replace('#', '/');
     App.Router.to(target);
 });
-},{"./bootstrap/AppBootstrap":1}],14:[function(require,module,exports){
+},{"./bootstrap/AppBootstrap":1}],20:[function(require,module,exports){
 /**
  * Example model
  *
@@ -618,18 +821,18 @@ module.exports = {
     }
 
 };
-},{}],15:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 module.exports = "<h2>Test 1: <%= hola %></h2>";
 
-},{}],16:[function(require,module,exports){
-arguments[4][15][0].apply(exports,arguments)
-},{"dup":15}],17:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
+arguments[4][21][0].apply(exports,arguments)
+},{"dup":21}],23:[function(require,module,exports){
 module.exports = "<h2>Test 2: <%= hola %></h2>";
 
-},{}],18:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 module.exports = "<h2>Test 4 without data</h2>";
 
-},{}],19:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var view        = _.template(require('./templates/index.html'));
 
 module.exports  = {
@@ -642,7 +845,7 @@ module.exports  = {
     }
 
 };
-},{"./templates/index.html":21}],20:[function(require,module,exports){
+},{"./templates/index.html":27}],26:[function(require,module,exports){
 var view        = _.template(require('./templates/list.html'));
 
 module.exports  = {
@@ -655,10 +858,10 @@ module.exports  = {
     }
 
 };
-},{"./templates/list.html":22}],21:[function(require,module,exports){
+},{"./templates/list.html":28}],27:[function(require,module,exports){
 module.exports = "<%= App.View.partial('test1', {hola: 'hola'}) %>\n\n<h1>Index</h1>\n\n<%= App.View.partial('test2', {hola: 'mundo'}) %>\n\n<h1>More Partials</h1>\n\n<%= App.View.partial('test2', {hola: 'mundo 2 repetido'}) %>\n\n<%= App.View.partial('folder/test3', {hola: 'folder 3'}) %>\n\n<%= App.View.partial('test4') %>";
 
-},{}],22:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 module.exports = "<h1>List <%= data %></h1>";
 
-},{}]},{},[13]);
+},{}]},{},[19]);
