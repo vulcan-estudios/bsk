@@ -7,7 +7,7 @@
     position: fixed;
     top: 45px;
     z-index: 1055;
-    
+
     .alert-box {
         font-size: 0.875rem !important;
         color: #FFF;
@@ -19,10 +19,10 @@
         i {
             display: none;
             float: left;
-            font-size: 28px;
-            margin-top: -4px;
+            font-size: 1.5rem;
+            margin-top: -2px;
             position: relative;
-            margin-left: -2rem;
+            margin-left: -1.75rem;
         }
         &.alert {
             background-color: #EC373C;
@@ -49,7 +49,7 @@
             background-color: #03a9f4;
             .mdi-bell {
                 display: block;
-                color: #0387f4m;
+                color: #0387f4;
             }
         }
         .close {
