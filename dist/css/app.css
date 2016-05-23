@@ -2270,3 +2270,33 @@ table.hover tr:nth-of-type(even):hover { background-color: #ececec; }
 
 /* line 99, ../../bower_components/motion-ui/src/_classes.scss */
 .long-delay { animation-delay: 700ms !important; }
+
+/* line 1, ../../src/scss/components/_flash.scss */
+.flash-message { margin: 5px auto; padding: 0.07em 0 0; text-align: center; width: 50%; left: 25%; position: fixed; top: 45px; z-index: 1055; }
+/* line 11, ../../src/scss/components/_flash.scss */
+.flash-message .alert-box { font-size: 0.875rem !important; color: #FFF; margin-top: 1.25rem; margin-bottom: 0 !important; box-shadow: 0px 1px 3px 2px rgba(204, 204, 204, 0.6); border: none; padding: 0.875rem 2.5rem; }
+/* line 19, ../../src/scss/components/_flash.scss */
+.flash-message .alert-box i { display: none; float: left; font-size: 1.5rem; margin-top: -2px; position: relative; margin-left: -1.75rem; }
+/* line 27, ../../src/scss/components/_flash.scss */
+.flash-message .alert-box.alert { background-color: #EC373C; }
+/* line 29, ../../src/scss/components/_flash.scss */
+.flash-message .alert-box.alert .mdi-close-octagon { display: block; color: #C20F18; }
+/* line 34, ../../src/scss/components/_flash.scss */
+.flash-message .alert-box.warning { background-color: #F0BE5A; }
+/* line 36, ../../src/scss/components/_flash.scss */
+.flash-message .alert-box.warning .mdi-alert-box { display: block; color: #B8944E; }
+/* line 41, ../../src/scss/components/_flash.scss */
+.flash-message .alert-box.valid { background-color: #48AD89; }
+/* line 43, ../../src/scss/components/_flash.scss */
+.flash-message .alert-box.valid .mdi-checkbox-market { display: block; color: #43886F; }
+/* line 48, ../../src/scss/components/_flash.scss */
+.flash-message .alert-box.info { background-color: #03a9f4; }
+/* line 50, ../../src/scss/components/_flash.scss */
+.flash-message .alert-box.info .mdi-bell { display: block; color: #0387f4; }
+/* line 55, ../../src/scss/components/_flash.scss */
+.flash-message .alert-box .close { color: #fff; float: right; font-size: 1.5rem; margin-right: -1.5rem; margin-top: -0.675rem; opacity: 1; }
+/* line 63, ../../src/scss/components/_flash.scss */
+.flash-message .alert-box p { margin-bottom: 0em; font-size: 0.875rem !important; }
+
+@media (max-width: 1024px) { /* line 71, ../../src/scss/components/_flash.scss */
+  .flash-message { left: 5% !important; top: 110px; width: 90%; } }
