@@ -9,9 +9,12 @@ var AppRouter       = require('./AppRouter');
 var AppView         = require('./AppView');
 var AppModel        = require('./AppModel');
 
+// Helpers
+var Flash           = require('helpers/flash/flash');
+
 // Libs
 var Zurb            = require('libs/zurb/Zurb');
-var Filter          = require('libs/filter/Filter')
+var Filter          = require('libs/filter/Filter');
 
 module.exports = function() {
 
@@ -19,10 +22,10 @@ module.exports = function() {
 
     Zurb.init();
 
-    return { Config: Config, Router: new Router(), Model: new AppModel(), View: AppView, Filter: Filter };
+    return { Config: Config, Flash: Flash.init(), Router: new Router(), Model: new AppModel(), View: AppView, Filter: Filter };
 
 };
-},{"../config/config":6,"./AppModel":3,"./AppRouter":4,"./AppView":5,"libs/filter/Filter":13,"libs/zurb/Zurb":17}],2:[function(require,module,exports){
+},{"../config/config":6,"./AppModel":3,"./AppRouter":4,"./AppView":5,"helpers/flash/flash":13,"libs/filter/Filter":15,"libs/zurb/Zurb":19}],2:[function(require,module,exports){
 /**
  * App Configuration
  *
@@ -66,7 +69,7 @@ module.exports  = function() {
     return objs;
 
 };
-},{"../models/Example.js":20}],4:[function(require,module,exports){
+},{"../models/Example.js":22}],4:[function(require,module,exports){
 /**
  * Router
  *
@@ -206,9 +209,14 @@ module.exports = {
     },
 
     // Redirect to url
-    to: function(target) {
+    to: function(target, cb) {
 
         this.navigate(target, {trigger: true});
+        if(cb) {
+            setTimeout(function() {
+                cb();
+            }, 200);
+        }
 
     }
 
@@ -222,6 +230,9 @@ module.exports = {
 
 var Views           = ({"views":({"home":(function () {var f = require("../views/home/index.js");f["index"]=require("../views/home/index.js");f["list"]=require("../views/home/list.js");return f;})()})}).views;
 var Partials        = ({"views":({"_shared":({"partials":({"folder":({"test3":require("../views/_shared/partials/folder/test3.html")}),"test1":require("../views/_shared/partials/test1.html"),"test2":require("../views/_shared/partials/test2.html"),"test4":require("../views/_shared/partials/test4.html")})})})}).views._shared.partials;
+
+//var Views           = require('bulk-require')(__dirname + '/..', ['./views/**/*.html']).views;
+//var Partials        = Views._shared.partials;
 
 module.exports = {
 
@@ -239,19 +250,29 @@ module.exports = {
         var toRender    = (module) ? Views[module][controller][action] : Views[controller][action];
 
         if(!toRender) {
-            console.error('VIEW NOT FOUND INTO "views/'+ path +'"');
+            console.error('VIEW "'+action+'" NOT FOUND INTO "views/'+ path +'"');
             return;
         }
 
         // If not has the initialize method
         var initialize  = 'initialize';
+        var assign      = 'assign';
 
         if(!toRender[initialize]) {
+
             toRender.initialize = function() {
                 this.render();
 
                 // TODO check if this is mandatory
                 return this;
+            };
+
+        }
+
+        // Assign multiples subviews
+        if(!toRender[assign]) {
+            toRender.assign     = function(view, selector) {
+                view.setElement(this.$(selector)).render();
             };
         }
 
@@ -267,8 +288,6 @@ module.exports = {
             el:     $(App.Config.SHELL_CONTAINER).attr('data-controller', controller).attr('data-action', action),
             data:   data
         };
-
-        //console.log(App.Model.Example.getElements());
 
         var View        = Backbone.View.extend(_.extend(config, toRender));
         return new View();
@@ -293,10 +312,71 @@ module.exports = {
         }
         return _.template(partial)(data);
 
-    }
+    },
+
+    renderHTML: function(data) {
+
+        // Get folder and file from router
+        var module      = App.Router.module;
+        var controller  = App.Router.controller;
+        var action      = App.Router.action;
+
+        if(action === 'index') {
+            console.error('THE ACTION NAME "', action, '" IS NOT VALID INTO "', controller, '" Controller');
+            return false;
+        }
+
+        // Get Path
+        var path        = (module)  ? module +'/'+ controller +'/'+ action : controller +'/'+ action;
+
+        // View to render
+        var html        = (module) ? Views[module][controller][action] : Views[controller][action];
+
+        // Check view
+        if(!html) {
+            console.error('VIEW "'+action+'" NOT FOUND INTO "views/'+ path +'"');
+            return;
+        }
+
+        // Check SHELL #app
+        if($(App.Config.SHELL_CONTAINER).size() === 0) {
+            console.error("THE SHELL ", App.Config.SHELL_CONTAINER, " COULD NOT BE FOUND INTO THE DOCUMENT. PLEASE CHECK YOUT CONFIG FILE");
+            return;
+        }
+
+        // Render View and append module, controller and action into shell
+        $('body').attr('data-module', module);
+
+        var toRender = {
+
+            el:         $(App.Config.SHELL_CONTAINER).attr('data-controller', controller).attr('data-action', action),
+            data:       data,
+            template:   _.template(html),
+
+            // Initialize
+            initialize: function() {
+                this.render();
+
+                // TODO check if this is mandatory
+                return this;
+            },
+
+            // Render
+            render: function() {
+
+                // Load the compiled HTML into the Backbone "el"
+                this.$el.html( this.template(this.data) );
+            }
+
+        };
+
+        var View        = Backbone.View.extend(toRender);
+        return new View();
+
+    },
 
 };
-},{"../views/_shared/partials/folder/test3.html":21,"../views/_shared/partials/test1.html":22,"../views/_shared/partials/test2.html":23,"../views/_shared/partials/test4.html":24,"../views/home/index.js":25,"../views/home/list.js":26}],6:[function(require,module,exports){
+},{"../views/_shared/partials/folder/test3.html":23,"../views/_shared/partials/test1.html":24,"../views/_shared/partials/test2.html":25,"../views/_shared/partials/test4.html":26,"../views/home/index.js":27,"../views/home/list.js":28}],6:[function(require,module,exports){
 /**
  * App Configuration
  *
@@ -440,7 +520,7 @@ module.exports = {
 
     },
 
-    // Index
+    // Home
     index: function() {
 
         var Model       = new App.Model.Example();
@@ -492,8 +572,9 @@ module.exports = {
     // Redirect to other url
     redirect: function() {
 
-        console.log("entra al redirect");
-        App.Router.to('home/list');
+        App.Router.to('home/list', function() {
+            App.Flash.valid('Redirect');
+        });
 
     }
 
@@ -581,6 +662,133 @@ module.exports = {
 };
 },{}],13:[function(require,module,exports){
 /**
+ *
+ * Helper Flash
+ *
+ * Flash.valid('Hello');
+ *
+ * Flash.error('Error');
+ *
+ */
+
+var template    = require('./templates/default.html');
+
+module.exports  = {
+
+    target: '.flash-message',
+
+    /**
+     * Initialize
+     */
+    init: function(element) {
+        this.target  = (element) || '.flash-message';
+        if($(this.target+':first').size() < 1) {
+            $('body').append('<div class="row"><div class="small-11 medium-9 small-centered columns"><div class="'+ this.target.replace('.', '') +'"></div></div></div>');
+        }
+        this.buffer();
+        this.bind();
+        return this;
+    },
+
+    /**
+     * Bind Event
+     */
+    bind: function() {
+        $('body').on('click', '.alert-box .close', function(e) {
+            e.preventDefault();
+            $(this).parents('.alert-box:first').hide();
+        });
+    },
+
+    /**
+     * Show Valid Message
+     *
+     * @param String msg
+     * @param Mixing cb
+     */
+    valid: function(msg, cb) {
+        this.display('valid', msg, cb);
+    },
+
+    /**
+     * Show Info Message
+     *
+     * @param String msg
+     * @param Mixing cb
+     */
+    info: function(msg, cb) {
+        this.display('info', msg, cb);
+    },
+
+    /**
+     * Show Warning Message
+     *
+     * @param String msg
+     * @param Mixing cb
+     */
+    warning: function(msg, cb) {
+        this.display('warning', msg, cb);
+    },
+
+    /**
+     * Show Error Message
+     *
+     * @param String msg
+     * @param Mixing cb
+     */
+    error: function(msg, cb) {
+        this.display('alert', msg, cb);
+    },
+
+    /**
+     *
+     * @param String type
+     * @param String msg
+     * @param Mixing cb
+     */
+    display: function (type, msg, cb) {
+        var data    = {
+            id:     Math.floor(Math.random()*11),
+            type:   type,
+            text:   msg,
+            delay:  7000
+        };
+        if(cb!==undefined) {
+            if (typeof cb === "function") {
+                $.cookie('flash-message', _.template(template)({msg: data}), { path: '/' });
+                setTimeout(function() { cb(); }, 100);
+                return;
+            } else if(parseInt(cb) > 0) {
+                data.delay  = cb;
+            }
+        }
+        this.clear();
+        $(this.target+':first').append(_.template(template)({msg: data}));
+    },
+
+    /**
+     * Clear all flash
+     */
+    clear: function() {
+        $(this.target).empty();
+    },
+
+    /**
+     * Show Buffer Message
+     */
+    buffer: function() {
+        if($.cookie('flash-message')) {
+            $(this.target+':first').append($.cookie('flash-message'));
+            $.removeCookie('flash-message', { path: '/' });
+        }
+    }
+
+};
+},{"./templates/default.html":14}],14:[function(require,module,exports){
+module.exports = "<div id=\"alert-id-<%= msg.id %>\" data-alert class=\"alert-box callout radius <%= msg.type %>\">\n    <a href=\"#\" class=\"close\">&times;</a>\n    <i class=\"mdi mdi-alert-box\"></i>\n    <i class=\"mdi mdi-checkbox-market\"></i>\n    <i class=\"mdi mdi-close-octagon\"></i>\n    <i class=\"mdi mdi-bell\"></i>\n    <%= msg.text %>\n</div>\n<script type=\"text/javascript\">$(\"#alert-id-<%= msg.id %>\").delay('<%= msg.delay %>').fadeOut(500);</script>";
+
+},{}],15:[function(require,module,exports){
+/**
  * Filter
  *
  * Filter.get(' custom string', 'trim');
@@ -619,7 +827,7 @@ module.exports  = {
 
 
 };
-},{"./filters/ltrimFilter.js":14,"./filters/rtrimFilter.js":15,"./filters/trimFilter.js":16}],14:[function(require,module,exports){
+},{"./filters/ltrimFilter.js":16,"./filters/rtrimFilter.js":17,"./filters/trimFilter.js":18}],16:[function(require,module,exports){
 /**
  * Filter ltrim
  *
@@ -641,7 +849,7 @@ module.exports   = {
     }
 
 };
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /**
  * Filter ltrim
  *
@@ -663,9 +871,9 @@ module.exports   = {
     }
 
 };
-},{}],16:[function(require,module,exports){
-arguments[4][14][0].apply(exports,arguments)
-},{"dup":14}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
+arguments[4][16][0].apply(exports,arguments)
+},{"dup":16}],19:[function(require,module,exports){
 /**
  * Utility for fundation
  *
@@ -706,7 +914,7 @@ module.exports  = {
     }
 
 };
-},{"libs/zurb/components/abide":18}],18:[function(require,module,exports){
+},{"libs/zurb/components/abide":20}],20:[function(require,module,exports){
 /**
  *
  * Abide
@@ -776,7 +984,7 @@ module.exports   = {
     }
 
 };
-},{}],19:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 var Bootstrap   = require('./bootstrap/AppBootstrap');
 
 $(document).ready(function() {
@@ -797,7 +1005,7 @@ $('body').on('click', 'a', function(e) {
     var target  = $(this).attr('href').replace('#', '/');
     App.Router.to(target);
 });
-},{"./bootstrap/AppBootstrap":1}],20:[function(require,module,exports){
+},{"./bootstrap/AppBootstrap":1}],22:[function(require,module,exports){
 /**
  * Example model
  *
@@ -821,18 +1029,18 @@ module.exports = {
     }
 
 };
-},{}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 module.exports = "<h2>Test 1: <%= hola %></h2>";
 
-},{}],22:[function(require,module,exports){
-arguments[4][21][0].apply(exports,arguments)
-},{"dup":21}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
+arguments[4][23][0].apply(exports,arguments)
+},{"dup":23}],25:[function(require,module,exports){
 module.exports = "<h2>Test 2: <%= hola %></h2>";
 
-},{}],24:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 module.exports = "<h2>Test 4 without data</h2>";
 
-},{}],25:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 var view        = _.template(require('./templates/index.html'));
 
 module.exports  = {
@@ -845,7 +1053,7 @@ module.exports  = {
     }
 
 };
-},{"./templates/index.html":27}],26:[function(require,module,exports){
+},{"./templates/index.html":29}],28:[function(require,module,exports){
 var view        = _.template(require('./templates/list.html'));
 
 module.exports  = {
@@ -858,10 +1066,10 @@ module.exports  = {
     }
 
 };
-},{"./templates/list.html":28}],27:[function(require,module,exports){
+},{"./templates/list.html":30}],29:[function(require,module,exports){
 module.exports = "<%= App.View.partial('test1', {hola: 'hola'}) %>\n\n<h1>Index</h1>\n\n<%= App.View.partial('test2', {hola: 'mundo'}) %>\n\n<h1>More Partials</h1>\n\n<%= App.View.partial('test2', {hola: 'mundo 2 repetido'}) %>\n\n<%= App.View.partial('folder/test3', {hola: 'folder 3'}) %>\n\n<%= App.View.partial('test4') %>";
 
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 module.exports = "<h1>List <%= data %></h1>";
 
-},{}]},{},[19]);
+},{}]},{},[21]);

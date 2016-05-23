@@ -10,7 +10,7 @@ module.exports = {
     // Internal Routes
     routes: {
 
-        'home':                 'home',
+        'home':                 'index',
         'home/get/:id':         'get',
         'home/list':            'list',
         'home/redirect':        'redirect'
@@ -18,7 +18,7 @@ module.exports = {
     },
 
     // Home
-    home: function() {
+    index: function() {
 
         var Model       = new App.Model.Example();
         console.log(Model.get('id'));
