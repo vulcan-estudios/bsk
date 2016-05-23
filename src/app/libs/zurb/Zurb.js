@@ -35,6 +35,8 @@ module.exports  = {
         Foundation.Abide.defaults.patterns      = _.extend(Foundation.Abide.defaults.patterns,      Abide.patterns);
         Foundation.Abide.defaults.validators    = _.extend(Foundation.Abide.defaults.validators,    Abide.validators);
 
+        $('form[data-abide]').attr('novalidate', 'novalidate');
+
     }
 
 };
