@@ -28,6 +28,8 @@ module.exports = {
 
         console.log('Entró a index Users');
 
+        App.View.Render();
+
     },
 
     // List all elements
@@ -41,6 +43,12 @@ module.exports = {
     get: function(param) {
 
         console.log('Entró al get del Users: ', param);
+
+    },
+
+    'test:form': function(param) {
+
+        console.log('dispara el test form');
 
     }
 

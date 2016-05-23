@@ -7,12 +7,14 @@
 var Views           = require('bulk-require')(__dirname + '/..', ['./views/**/*.js']).views;
 var Partials        = require('bulk-require')(__dirname + '/..', ['./views/_shared/partials/**/*.html']).views._shared.partials;
 
+var Zurb            = require('libs/zurb/Zurb');
+
 //var Views           = require('bulk-require')(__dirname + '/..', ['./views/**/*.html']).views;
 //var Partials        = Views._shared.partials;
 
 module.exports = {
 
-    render: function(data) {
+    Render: function(data) {
 
         // Get folder and file from router
         var module      = App.Router.module;
@@ -33,6 +35,8 @@ module.exports = {
         // If not has the initialize method
         var initialize  = 'initialize';
         var assign      = 'assign';
+        var remove      = 'remove';
+        var html        = 'html';
 
         if(!toRender[initialize]) {
 
@@ -47,8 +51,31 @@ module.exports = {
 
         // Assign multiples subviews
         if(!toRender[assign]) {
-            toRender.assign     = function(view, selector) {
-                view.setElement(this.$(selector)).render();
+            toRender.assign     = function(view, selector, data) {
+                App.View.Assign(this, view, selector, data);
+                return this;
+            };
+        }
+
+        // Inner HTML
+        if(!toRender[html]) {
+            toRender.html     = function(view) {
+                this.remove();
+                this.$el.html( view );
+
+                // Foundation Start
+                Zurb.init();
+                
+                return this;
+            };
+        }
+
+        // Zombies View?? @TODO
+        if(!toRender[remove]) {
+            toRender.remove     = function() {
+                this.$el.empty();
+                this.unbind();
+                return this;
             };
         }
 
@@ -70,7 +97,7 @@ module.exports = {
 
     },
 
-    partial: function(partial, data) {
+    Partial: function(partial, data) {
 
         var tmpFolder   = partial.split('/');
         var hasFolder   = tmpFolder.length > 1 ? true : false;
@@ -90,65 +117,32 @@ module.exports = {
 
     },
 
-    renderHTML: function(data) {
+    Assign: function(view, subview, selector, data) {
 
         // Get folder and file from router
         var module      = App.Router.module;
         var controller  = App.Router.controller;
         var action      = App.Router.action;
 
-        if(action === 'index') {
-            console.error('THE ACTION NAME "', action, '" IS NOT VALID INTO "', controller, '" Controller');
-            return false;
+        var subViewPath = path.split('/');
+        var subView     = '';
+        if(subViewPath.length === 1) {
+            subView     = subViewPath[0];
+        } else {
+            console.error("WE ARE WORKING HERE ;)");
+            return;
         }
-
-        // Get Path
-        var path        = (module)  ? module +'/'+ controller +'/'+ action : controller +'/'+ action;
 
         // View to render
-        var html        = (module) ? Views[module][controller][action] : Views[controller][action];
+        var toRender    = (module) ? Views[module][controller][subView] : Views[controller][subView];
 
-        // Check view
-        if(!html) {
-            console.error('VIEW "'+action+'" NOT FOUND INTO "views/'+ path +'"');
+        if(!toRender) {
+            console.error('VIEW "'+subView+'" NOT FOUND INTO "views/'+ path +'" TO APPEND INTO', action);
             return;
         }
 
-        // Check SHELL #app
-        if($(App.Config.SHELL_CONTAINER).size() === 0) {
-            console.error("THE SHELL ", App.Config.SHELL_CONTAINER, " COULD NOT BE FOUND INTO THE DOCUMENT. PLEASE CHECK YOUT CONFIG FILE");
-            return;
-        }
+        subview.setElement(view.$(selector)).render(data);
 
-        // Render View and append module, controller and action into shell
-        $('body').attr('data-module', module);
-
-        var toRender = {
-
-            el:         $(App.Config.SHELL_CONTAINER).attr('data-controller', controller).attr('data-action', action),
-            data:       data,
-            template:   _.template(html),
-
-            // Initialize
-            initialize: function() {
-                this.render();
-
-                // TODO check if this is mandatory
-                return this;
-            },
-
-            // Render
-            render: function() {
-
-                // Load the compiled HTML into the Backbone "el"
-                this.$el.html( this.template(this.data) );
-            }
-
-        };
-
-        var View        = Backbone.View.extend(toRender);
-        return new View();
-
-    },
+    }
 
 };

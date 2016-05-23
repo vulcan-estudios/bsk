@@ -23,7 +23,7 @@ module.exports = {
         var Model       = new App.Model.Example();
         console.log(Model.get('id'));
 
-        App.View.render();
+        App.View.Render();
 
     },
 
@@ -55,7 +55,7 @@ module.exports = {
 
         console.log(Model.get('id'));
 
-        App.View.render({ data: Model.getElements() });
+        App.View.Render({ data: Model.getElements() });
 
     },
 

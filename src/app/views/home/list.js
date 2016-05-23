@@ -5,7 +5,7 @@ module.exports  = {
     render: function() {
 
         // Load the compiled HTML into the Backbone "el"
-        this.$el.html( view(this.data) );
+        this.html( view(this.data) );
 
     }
 

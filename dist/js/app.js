@@ -13,19 +13,16 @@ var AppModel        = require('./AppModel');
 var Flash           = require('helpers/flash/flash');
 
 // Libs
-var Zurb            = require('libs/zurb/Zurb');
 var Filter          = require('libs/filter/Filter');
 
 module.exports = function() {
 
     var Router      = Backbone.Router.extend(AppRouter);
 
-    Zurb.init();
-
     return { Config: Config, Flash: Flash.init(), Router: new Router(), Model: new AppModel(), View: AppView, Filter: Filter };
 
 };
-},{"../config/config":6,"./AppModel":3,"./AppRouter":4,"./AppView":5,"helpers/flash/flash":13,"libs/filter/Filter":15,"libs/zurb/Zurb":19}],2:[function(require,module,exports){
+},{"../config/config":6,"./AppModel":3,"./AppRouter":4,"./AppView":5,"helpers/flash/flash":13,"libs/filter/Filter":15}],2:[function(require,module,exports){
 /**
  * App Configuration
  *
@@ -228,15 +225,17 @@ module.exports = {
  * @type type
  */
 
-var Views           = ({"views":({"home":(function () {var f = require("../views/home/index.js");f["index"]=require("../views/home/index.js");f["list"]=require("../views/home/list.js");return f;})()})}).views;
+var Views           = ({"views":({"home":(function () {var f = require("../views/home/index.js");f["index"]=require("../views/home/index.js");f["list"]=require("../views/home/list.js");return f;})(),"notifications":({"users":(function () {var f = require("../views/notifications/users/index.js");f["index"]=require("../views/notifications/users/index.js");return f;})()})})}).views;
 var Partials        = ({"views":({"_shared":({"partials":({"folder":({"test3":require("../views/_shared/partials/folder/test3.html")}),"test1":require("../views/_shared/partials/test1.html"),"test2":require("../views/_shared/partials/test2.html"),"test4":require("../views/_shared/partials/test4.html")})})})}).views._shared.partials;
+
+var Zurb            = require('libs/zurb/Zurb');
 
 //var Views           = require('bulk-require')(__dirname + '/..', ['./views/**/*.html']).views;
 //var Partials        = Views._shared.partials;
 
 module.exports = {
 
-    render: function(data) {
+    Render: function(data) {
 
         // Get folder and file from router
         var module      = App.Router.module;
@@ -257,6 +256,8 @@ module.exports = {
         // If not has the initialize method
         var initialize  = 'initialize';
         var assign      = 'assign';
+        var remove      = 'remove';
+        var html        = 'html';
 
         if(!toRender[initialize]) {
 
@@ -271,8 +272,31 @@ module.exports = {
 
         // Assign multiples subviews
         if(!toRender[assign]) {
-            toRender.assign     = function(view, selector) {
-                view.setElement(this.$(selector)).render();
+            toRender.assign     = function(view, selector, data) {
+                App.View.Assign(this, view, selector, data);
+                return this;
+            };
+        }
+
+        // Inner HTML
+        if(!toRender[html]) {
+            toRender.html     = function(view) {
+                this.remove();
+                this.$el.html( view );
+
+                // Foundation Start
+                Zurb.init();
+                
+                return this;
+            };
+        }
+
+        // Zombies View?? @TODO
+        if(!toRender[remove]) {
+            toRender.remove     = function() {
+                this.$el.empty();
+                this.unbind();
+                return this;
             };
         }
 
@@ -294,7 +318,7 @@ module.exports = {
 
     },
 
-    partial: function(partial, data) {
+    Partial: function(partial, data) {
 
         var tmpFolder   = partial.split('/');
         var hasFolder   = tmpFolder.length > 1 ? true : false;
@@ -314,69 +338,36 @@ module.exports = {
 
     },
 
-    renderHTML: function(data) {
+    Assign: function(view, subview, selector, data) {
 
         // Get folder and file from router
         var module      = App.Router.module;
         var controller  = App.Router.controller;
         var action      = App.Router.action;
 
-        if(action === 'index') {
-            console.error('THE ACTION NAME "', action, '" IS NOT VALID INTO "', controller, '" Controller');
-            return false;
+        var subViewPath = path.split('/');
+        var subView     = '';
+        if(subViewPath.length === 1) {
+            subView     = subViewPath[0];
+        } else {
+            console.error("WE ARE WORKING HERE ;)");
+            return;
         }
-
-        // Get Path
-        var path        = (module)  ? module +'/'+ controller +'/'+ action : controller +'/'+ action;
 
         // View to render
-        var html        = (module) ? Views[module][controller][action] : Views[controller][action];
+        var toRender    = (module) ? Views[module][controller][subView] : Views[controller][subView];
 
-        // Check view
-        if(!html) {
-            console.error('VIEW "'+action+'" NOT FOUND INTO "views/'+ path +'"');
+        if(!toRender) {
+            console.error('VIEW "'+subView+'" NOT FOUND INTO "views/'+ path +'" TO APPEND INTO', action);
             return;
         }
 
-        // Check SHELL #app
-        if($(App.Config.SHELL_CONTAINER).size() === 0) {
-            console.error("THE SHELL ", App.Config.SHELL_CONTAINER, " COULD NOT BE FOUND INTO THE DOCUMENT. PLEASE CHECK YOUT CONFIG FILE");
-            return;
-        }
+        subview.setElement(view.$(selector)).render(data);
 
-        // Render View and append module, controller and action into shell
-        $('body').attr('data-module', module);
-
-        var toRender = {
-
-            el:         $(App.Config.SHELL_CONTAINER).attr('data-controller', controller).attr('data-action', action),
-            data:       data,
-            template:   _.template(html),
-
-            // Initialize
-            initialize: function() {
-                this.render();
-
-                // TODO check if this is mandatory
-                return this;
-            },
-
-            // Render
-            render: function() {
-
-                // Load the compiled HTML into the Backbone "el"
-                this.$el.html( this.template(this.data) );
-            }
-
-        };
-
-        var View        = Backbone.View.extend(toRender);
-        return new View();
-
-    },
+    }
 
 };
-},{"../views/_shared/partials/folder/test3.html":23,"../views/_shared/partials/test1.html":24,"../views/_shared/partials/test2.html":25,"../views/_shared/partials/test4.html":26,"../views/home/index.js":27,"../views/home/list.js":28}],6:[function(require,module,exports){
+},{"../views/_shared/partials/folder/test3.html":23,"../views/_shared/partials/test1.html":24,"../views/_shared/partials/test2.html":25,"../views/_shared/partials/test4.html":26,"../views/home/index.js":27,"../views/home/list.js":28,"../views/notifications/users/index.js":31,"libs/zurb/Zurb":19}],6:[function(require,module,exports){
 /**
  * App Configuration
  *
@@ -526,7 +517,7 @@ module.exports = {
         var Model       = new App.Model.Example();
         console.log(Model.get('id'));
 
-        App.View.render();
+        App.View.Render();
 
     },
 
@@ -558,7 +549,7 @@ module.exports = {
 
         console.log(Model.get('id'));
 
-        App.View.render({ data: Model.getElements() });
+        App.View.Render({ data: Model.getElements() });
 
     },
 
@@ -643,6 +634,8 @@ module.exports = {
 
         console.log('Entró a index Users');
 
+        App.View.Render();
+
     },
 
     // List all elements
@@ -656,6 +649,12 @@ module.exports = {
     get: function(param) {
 
         console.log('Entró al get del Users: ', param);
+
+    },
+
+    'test:form': function(param) {
+
+        console.log('dispara el test form');
 
     }
 
@@ -911,6 +910,8 @@ module.exports  = {
         Foundation.Abide.defaults.patterns      = _.extend(Foundation.Abide.defaults.patterns,      Abide.patterns);
         Foundation.Abide.defaults.validators    = _.extend(Foundation.Abide.defaults.validators,    Abide.validators);
 
+        $('form[data-abide]').attr('novalidate', 'novalidate');
+
     }
 
 };
@@ -1048,7 +1049,7 @@ module.exports  = {
     render: function() {
 
         // Load the compiled HTML into the Backbone "el"
-        this.$el.html( view );
+        this.html( view );
 
     }
 
@@ -1061,15 +1062,44 @@ module.exports  = {
     render: function() {
 
         // Load the compiled HTML into the Backbone "el"
-        this.$el.html( view(this.data) );
+        this.html( view(this.data) );
 
     }
 
 };
 },{"./templates/list.html":30}],29:[function(require,module,exports){
-module.exports = "<%= App.View.partial('test1', {hola: 'hola'}) %>\n\n<h1>Index</h1>\n\n<%= App.View.partial('test2', {hola: 'mundo'}) %>\n\n<h1>More Partials</h1>\n\n<%= App.View.partial('test2', {hola: 'mundo 2 repetido'}) %>\n\n<%= App.View.partial('folder/test3', {hola: 'folder 3'}) %>\n\n<%= App.View.partial('test4') %>";
+module.exports = "<%= App.View.Partial('test1', {hola: 'hola'}) %>\n\n<h1>Index</h1>\n\n<%= App.View.Partial('test2', {hola: 'mundo'}) %>\n\n<h1>More Partials</h1>\n\n<%= App.View.Partial('test2', {hola: 'mundo 2 repetido'}) %>\n\n<%= App.View.Partial('folder/test3', {hola: 'folder 3'}) %>\n\n<%= App.View.Partial('test4') %>";
 
 },{}],30:[function(require,module,exports){
 module.exports = "<h1>List <%= data %></h1>";
+
+},{}],31:[function(require,module,exports){
+var view        = _.template(require('./templates/index.html'));
+
+module.exports  = {
+
+    events: {
+        'submit form': 'test'
+    },
+
+    render: function() {
+
+        // Load the compiled HTML into the Backbone "el"
+        this.html( view );
+
+        // Load subviews
+        //this.assign('subview', '.wrapper-user');
+
+    },
+
+    test: function(e) {
+        e.preventDefault();
+        console.log('Trigger event test');
+        return false;
+    }
+
+};
+},{"./templates/index.html":32}],32:[function(require,module,exports){
+module.exports = "\n<div class=\"row\">\n    <div class=\"small-12 columns\">\n        <h1>Users hola</h1>\n        <form data-abide>\n\n            <div class=\"row\">\n                <div class=\"small-12 columns\">\n\n                    <label>Input\n                        <input type=\"text\" required name=\"model[field]\">\n                        <span class=\"form-error\">This input is required</span>\n                    </label>\n\n                </div>\n            </div>\n\n            <div class=\"row\">\n                <div class=\"small-12 columns\">\n                    <button type=\"submit\" class=\"button primary\">SAVE</button>\n                </div>\n            </div>\n\n        </form>\n\n        <div class=\"wrapper-user\"></div>\n    </div>\n</div>\n";
 
 },{}]},{},[21]);
