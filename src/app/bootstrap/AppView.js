@@ -5,7 +5,8 @@
  */
 
 var Views           = require('bulk-require')(__dirname + '/..', ['./views/**/*.js']).views;
-var Partials        = require('bulk-require')(__dirname + '/..', ['./views/_shared/partials/**/*.html']).views._shared.partials;
+var Partials        = require('bulk-require')(__dirname + '/..', ['./views/_shared/partials/**/*.html']);
+Partials            = (Partials.views) ? Partials.views._shared.partials : {};
 
 var Zurb            = require('libs/zurb/Zurb');
 
@@ -65,7 +66,7 @@ module.exports = {
 
                 // Foundation Start
                 Zurb.init();
-                
+
                 return this;
             };
         }
