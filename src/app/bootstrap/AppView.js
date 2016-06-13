@@ -5,80 +5,32 @@
  */
 
 var Views           = require('bulk-require')(__dirname + '/..', ['./views/**/*.js']).views;
-var Partials        = require('bulk-require')(__dirname + '/..', ['./views/_shared/partials/**/*.html']);
-Partials            = (Partials.views) ? Partials.views._shared.partials : {};
-
-var Zurb            = require('libs/zurb/Zurb');
-
-//var Views           = require('bulk-require')(__dirname + '/..', ['./views/**/*.html']).views;
-//var Partials        = Views._shared.partials;
+var Partials        = require('bulk-require')(__dirname + '/..', ['./views/_shared/partials/**/*.html']).views._shared.partials || {};
+var Components      = Views._shared.components;
 
 module.exports = {
 
-    Render: function(data) {
+    /**
+     * Curent View to render
+     */
+    currentView:    {},
 
-        // Get folder and file from router
-        var module      = App.Router.module;
-        var controller  = App.Router.controller;
-        var action      = App.Router.action;
+    // Current module
+    module:         '',
 
-        // Get Path
-        var path        = (module)  ? module +'/'+ controller +'/'+ action : controller +'/'+ action;
+    // Current controller
+    controller:     '',
 
-        // View to render
-        var toRender    = (module) ? Views[module][controller][action] : Views[controller][action];
+    // Current action
+    action:         '',
 
-        if(!toRender) {
-            console.error('VIEW "'+action+'" NOT FOUND INTO "views/'+ path +'"');
-            return;
-        }
 
-        // If not has the initialize method
-        var initialize  = 'initialize';
-        var assign      = 'assign';
-        var remove      = 'remove';
-        var html        = 'html';
-
-        if(!toRender[initialize]) {
-
-            toRender.initialize = function() {
-                this.render();
-
-                // TODO check if this is mandatory
-                return this;
-            };
-
-        }
-
-        // Assign multiples subviews
-        if(!toRender[assign]) {
-            toRender.assign     = function(view, selector, data) {
-                App.View.Assign(this, view, selector, data);
-                return this;
-            };
-        }
-
-        // Inner HTML
-        if(!toRender[html]) {
-            toRender.html     = function(view) {
-                this.remove();
-                this.$el.html( view );
-
-                // Foundation Start
-                Zurb.init();
-
-                return this;
-            };
-        }
-
-        // Zombies View?? @TODO
-        if(!toRender[remove]) {
-            toRender.remove     = function() {
-                this.$el.empty();
-                this.unbind();
-                return this;
-            };
-        }
+    /**
+     * Method to run current view
+     * @param {type} data
+     * @returns {undefined|nm$_AppView.module.exports.Run.Main}
+     */
+    Run: function() {
 
         // Check SHELL #app
         if($(App.Config.SHELL_CONTAINER).size() === 0) {
@@ -86,18 +38,97 @@ module.exports = {
             return;
         }
 
-        // Render View and append module, controller and action into shell
-        $('body').attr('data-module', module);
         var config = {
-            el:     $(App.Config.SHELL_CONTAINER).attr('data-controller', controller).attr('data-action', action),
-            data:   data
+            el:     $(App.Config.SHELL_CONTAINER).attr('data-controller', this.controller).attr('data-action', this.action),
+            view:   this.currentView
         };
 
-        var View        = Backbone.View.extend(_.extend(config, toRender));
-        return new View();
+        $('body').attr('data-module', this.module);
+        var Main    = Backbone.View.extend(_.extend(config, Views.main));
+        return new Main();
 
     },
 
+    /**
+     * Method to render an action into controller
+     * @param {type} data
+     * @returns {nm$_AppView.module.exports.Run.Main|undefined}
+     */
+    Render: function(data) {
+
+        this.module     = App.Router.module;
+
+        this.controller = App.Router.controller;
+
+        this.action     = App.Router.action;
+
+        // Get Path
+        var path        = (this.module)  ? this.module +'/'+ this.controller +'/'+ this.action : this.controller +'/'+ this.action;
+
+        // View to render
+        var toRender    = (this.module) ? Views[this.module][this.controller][this.action] : Views[this.controller][this.action];
+
+        if(!toRender) {
+            console.error('VIEW "'+this.action+'" NOT FOUND INTO "views/'+ path +'"');
+            return;
+        }
+
+        if(!toRender['initialize']) {
+            toRender.initialize = function() {
+                this.remove();
+                this.render();
+                return this;
+            };
+        }
+
+        // Clean view
+        if(!toRender['remove']) {
+            toRender.remove     = function() {
+                this.$el.empty();
+                this.unbind();
+            };
+        }
+
+        var config          = {
+            tagName: 'main',
+            data: data
+        };
+
+        var View            = Backbone.View.extend(_.extend(config, toRender));
+        this.currentView    = new View();
+
+        return this.Run();
+
+    },
+
+    /**
+     * Load a component to append into a view
+     * @param {type} name
+     * @returns {undefined|nm$_AppView.module.exports.Component.Component}
+     */
+    Component: function(name, data) {
+
+        // Get Component
+        var toAppend    = Components[name];
+        if(!toAppend) {
+            console.error('COMPONENT "'+name+'" NOT FOUND INTO "views/_shared/components/" TO APPEND INTO MAIN VIEW');
+            return;
+        }
+        var config      = {
+            data:       data
+        };
+        var Component   = Backbone.View.extend(_.extend(config, toAppend));
+        return new Component();
+
+    },
+
+    /**
+     * Render a partial
+     *
+     * @param {type} partial
+     * @param {type} data
+     * @returns {Boolean}
+     */
     Partial: function(partial, data) {
 
         var tmpFolder   = partial.split('/');
@@ -115,34 +146,6 @@ module.exports = {
             return false;
         }
         return _.template(partial)(data);
-
-    },
-
-    Assign: function(view, subview, selector, data) {
-
-        // Get folder and file from router
-        var module      = App.Router.module;
-        var controller  = App.Router.controller;
-        var action      = App.Router.action;
-
-        var subViewPath = path.split('/');
-        var subView     = '';
-        if(subViewPath.length === 1) {
-            subView     = subViewPath[0];
-        } else {
-            console.error("WE ARE WORKING HERE ;)");
-            return;
-        }
-
-        // View to render
-        var toRender    = (module) ? Views[module][controller][subView] : Views[controller][subView];
-
-        if(!toRender) {
-            console.error('VIEW "'+subView+'" NOT FOUND INTO "views/'+ path +'" TO APPEND INTO', action);
-            return;
-        }
-
-        subview.setElement(view.$(selector)).render(data);
 
     }
 

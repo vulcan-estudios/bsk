@@ -19,7 +19,8 @@ module.exports  = function() {
             return new tmpCollection(data);
         };
 
-        objs[key]   = Backbone.Model.extend( _({}).extend(model, {Collection: collection}) );
+        var tmpModel    = Backbone.Model.extend( _({}).extend(model, {Collection: collection}) );
+        objs[key]       = new tmpModel();
 
     });
 
