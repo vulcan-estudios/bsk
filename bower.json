@@ -1,5 +1,5 @@
 {
-  "name": "BSK",
+  "name": "Hacaritama",
   "version": "1.0.0",
   "authors": [
     "Iván Meléndez <argordmel@gmail.com>"
@@ -7,7 +7,7 @@
   "description": "Basic template for a new Foundation for Sites project with Backbone.",
   "license": "MIT",
   "dependencies": {
-    "foundation-sites": "~6.2.1",
+    "foundation-sites": "~6.2.3",
     "motion-ui": "~1.1.1",
     "backbone": "^1.3.3",
     "underscore": "^1.8.3",
@@ -19,6 +19,8 @@
     "Sortable": "^1.4.2",
     "jquery.serializeJSON": "^2.7.2",
     "foundation-datepicker": "^1.5.3",
-    "jquery.cookie": "jquery-cookie#^1.4.1"
+    "jquery.cookie": "jquery-cookie#^1.4.1",
+    "purl": "^2.3.1",
+    "jquery-sticky": "^1.0.3"
   }
 }
