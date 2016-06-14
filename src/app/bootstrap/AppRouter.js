@@ -75,10 +75,29 @@ module.exports = {
         for(name in Controllers) {
             if(!/controller/i.test(name)) {
                 for(submodule in Controllers[name]) {
-                    this.routes  = _.extend(this.routes, mergeAction(name +'.'+ submodule, Controllers[name][submodule].routes))
+
+                    var routes      = {};
+                    _.each(Controllers[name][submodule].routes, function(source, url) {
+                        var tmpUrl  = App.Filter.get(url, 'rtrim', '/');
+                        var tmpUrl2 = tmpUrl+'/';
+                        routes[tmpUrl]  = source;
+                        routes[tmpUrl2] = source;
+                    });
+
+                    this.routes  = _.extend(this.routes, mergeAction(name +'.'+ submodule, routes));
+
                 }
             } else {
-                this.routes = _.extend(this.routes, mergeAction(name, Controllers[name].routes));
+
+                var routes      = {};
+                _.each(Controllers[name].routes, function(source, url) {
+                    var tmpUrl  = App.Filter.get(url, 'rtrim', '/');
+                    var tmpUrl2 = tmpUrl+'/';
+                    routes[tmpUrl]  = source;
+                    routes[tmpUrl2] = source;
+                });
+
+                this.routes = _.extend(this.routes, mergeAction(name, routes));
             }
         }
 
@@ -133,6 +152,8 @@ module.exports = {
 
         // Run method
         ObjController[this.action].apply(ObjController, params);
+
+        $("html, body").animate({scrollTop: 0}, 500);
 
     },
 

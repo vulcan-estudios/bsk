@@ -15,6 +15,8 @@ module.exports = {
      */
     currentView:    {},
 
+    loaded: [],
+
     // Current module
     module:         '',
 
@@ -54,7 +56,10 @@ module.exports = {
      * @param {type} data
      * @returns {nm$_AppView.module.exports.Run.Main|undefined}
      */
-    Render: function(data) {
+    Render: function() {
+
+        var params      = arguments;
+        var data        = {};
 
         this.module     = App.Router.module;
 
@@ -62,32 +67,56 @@ module.exports = {
 
         this.action     = App.Router.action;
 
+        if(typeof params[0] === 'string') {
+            data        = params[1] ? params[1] : {};
+            tmpPath     = App.Filter.get(params[0], 'trim', '/').split('/');
+            if(tmpPath.length > 2) {
+                this.module     = tmpPath[0];
+                this.controller = tmpPath[1];
+                this.action     = tmpPath[2];
+            } else {
+                this.module     = null;
+                this.controller = tmpPath[0];
+                this.action     = tmpPath[1];
+            }
+        } else {
+            data        = params[0];
+        }
+
         // Get Path
         var path        = (this.module)  ? this.module +'/'+ this.controller +'/'+ this.action : this.controller +'/'+ this.action;
 
-        // View to render
-        var toRender    = (this.module) ? Views[this.module][this.controller][this.action] : Views[this.controller][this.action];
-
-        if(!toRender) {
+        try {
+            // View to render
+            var toRender    = (this.module) ? Views[this.module][this.controller][this.action] : Views[this.controller][this.action];
+            if(!toRender) {
+                throw "View not found";
+            }
+        } catch(e) {
             console.error('VIEW "'+this.action+'" NOT FOUND INTO "views/'+ path +'"');
             return;
         }
 
         if(!toRender['initialize']) {
             toRender.initialize = function() {
-                this.remove();
                 this.render();
                 return this;
             };
         }
 
+        toRender.html           = function(html) {
+            this.clean();
+            this.$el.html(html);
+        };
+
         // Clean view
-        if(!toRender['remove']) {
-            toRender.remove     = function() {
-                this.$el.empty();
-                this.unbind();
-            };
-        }
+        toRender.clean      = function() {
+
+            // COMPLETELY UNBIND THE VIEW
+            this.undelegateEvents();
+            this.$el.removeData().unbind();
+            this.$el.empty();
+        };
 
         var config          = {
             tagName: 'main',
@@ -114,6 +143,18 @@ module.exports = {
             console.error('COMPONENT "'+name+'" NOT FOUND INTO "views/_shared/components/" TO APPEND INTO MAIN VIEW');
             return;
         }
+
+        if(!toAppend['initialize']) {
+            toAppend.initialize = function() {
+                this.render();
+                return this;
+            };
+        }
+
+        toAppend.html           = function(html) {
+            this.$el.html(html);
+        };
+
         var config      = {
             data:       data
         };
