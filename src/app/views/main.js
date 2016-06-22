@@ -3,6 +3,7 @@
  * MAIN VIEW
  */
 var Zurb        = require('libs/zurb/zurb');
+var Bind        = require('helpers/form/bind');
 
 module.exports  = {
 
@@ -41,6 +42,9 @@ module.exports  = {
 
         // Foundation Start
         Zurb.init();
+
+        // Bind Form components
+        Bind.init();
 
         return this;
 

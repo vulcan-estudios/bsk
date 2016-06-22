@@ -15,7 +15,8 @@ module.exports = {
      */
     currentView:    {},
 
-    loaded: [],
+    // Views Loaded to delete zombies
+    viewsLoaded:    [],
 
     // Current module
     module:         '',
@@ -61,41 +62,45 @@ module.exports = {
         var params      = arguments;
         var data        = {};
 
-        this.module     = App.Router.module;
+        var _this       = this;
 
-        this.controller = App.Router.controller;
+        _this.module        = App.Router.module;
 
-        this.action     = App.Router.action;
+        _this.controller    = App.Router.controller;
+
+        _this.action        = App.Router.action;
 
         if(typeof params[0] === 'string') {
             data        = params[1] ? params[1] : {};
             tmpPath     = App.Filter.get(params[0], 'trim', '/').split('/');
             if(tmpPath.length > 2) {
-                this.module     = tmpPath[0];
-                this.controller = tmpPath[1];
-                this.action     = tmpPath[2];
+                _this.module        = tmpPath[0];
+                _this.controller    = tmpPath[1];
+                _this.action        = tmpPath[2];
             } else {
-                this.module     = null;
-                this.controller = tmpPath[0];
-                this.action     = tmpPath[1];
+                _this.module        = null;
+                _this.controller    = tmpPath[0];
+                _this.action        = tmpPath[1];
             }
         } else {
             data        = params[0];
         }
 
         // Get Path
-        var path        = (this.module)  ? this.module +'/'+ this.controller +'/'+ this.action : this.controller +'/'+ this.action;
+        var path        = (_this.module)  ? _this.module +'/'+ _this.controller +'/'+ _this.action : _this.controller +'/'+ _this.action;
 
         try {
             // View to render
-            var toRender    = (this.module) ? Views[this.module][this.controller][this.action] : Views[this.controller][this.action];
+            var toRender    = (_this.module) ? Views[_this.module][_this.controller][_this.action] : Views[_this.controller][_this.action];
             if(!toRender) {
                 throw "View not found";
             }
         } catch(e) {
-            console.error('VIEW "'+this.action+'" NOT FOUND INTO "views/'+ path +'"');
+            console.error('VIEW "'+_this.action+'" NOT FOUND INTO "views/'+ path +'"');
             return;
         }
+
+        toRender.viewsLoaded        = [];
 
         if(!toRender['initialize']) {
             toRender.initialize = function() {
@@ -112,10 +117,16 @@ module.exports = {
         // Clean view
         toRender.clean      = function() {
 
+            // Remove all views loaded previously
+            this.viewsLoaded.forEach(function(view) {
+                view.remove();
+            });
+
             // COMPLETELY UNBIND THE VIEW
             this.undelegateEvents();
             this.$el.removeData().unbind();
             this.$el.empty();
+
         };
 
         var config          = {
@@ -126,7 +137,7 @@ module.exports = {
         var View            = Backbone.View.extend(_.extend(config, toRender));
         this.currentView    = new View();
 
-        return this.Run();
+        return _this.Run();
 
     },
 

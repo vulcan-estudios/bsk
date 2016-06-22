@@ -4,52 +4,7 @@
  *
  */
 
-
-// Components
-var Abide       = require('helpers/form/abide');
-var Counter     = require('helpers/form/counter');
-var Currency    = require('helpers/form/currency');
-var Datepicker  = require('helpers/form/datepicker');
-var Password    = require('helpers/form/password');
-var Timepicker  = require('helpers/form/timepicker');
-var Upload      = require('helpers/form/upload');
-
 module.exports   = {
-
-    /**
-     * Init form elements with helpers
-     * @param callback cb
-     */
-    init: function(cb) {
-
-        setTimeout(function() {
-
-            // Bind Counter
-            Counter.init('[data-counter]');
-
-            // Bind Currency
-            Currency.init('[data-currency]');
-
-            // Bind datepicker
-            Datepicker.init('[data-datepicker]');
-
-            // Bind Password
-            Password.init('[type="password"]');
-
-            // Bind timepicker
-            Timepicker.init('[type="timepicker"]');
-
-            // Bind Upload
-            Upload.init('[data-upload]');
-
-            // Callback
-            if(cb) {
-                cb();
-            }
-
-        }, 500);
-
-    },
 
     /**
      * Method to get form elements
@@ -133,6 +88,38 @@ module.exports   = {
             }
 
         });
+    },
+
+    /**
+     * Remove input error
+     * @param JQuery Object object
+     */
+    inputValid: function($input, timeout) {
+        var $container  = $input.parents('div:first');
+        setTimeout(function() {
+            $container.find('label').removeClass('is-invalid-label');
+            $container.find('.form-error').removeClass('is-visible');
+            $input.removeAttr('data-invalid').removeAttr('aria-invalid').removeClass('is-invalid-input');
+        }, (timeout > 0) ? timeout : 500);
+    },
+
+    /**
+     * Show input error
+     * @param JQuery Object object
+     */
+    inputInvalid: function($input, msg, timeout) {
+        var $container  = $input.parents('div:first');
+        var $inputError = $container.find('.form-error');
+        setTimeout(function() {
+            $container.find('label').addClass('is-invalid-label');
+            if(msg) {
+                $inputError.html(msg);
+            }
+            $inputError.addClass('is-visible');
+            $input.attr('data-invalid', '').attr('aria-invalid', 'true').addClass('is-invalid-input');
+            $input.parents('form:first').attr('data-invalid', '');
+        }, (timeout > 0) ? timeout : 500);
     }
+
 
 };

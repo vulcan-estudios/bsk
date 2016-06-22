@@ -17,6 +17,10 @@ module.exports  = {
         // Abide
         this.abide();
 
+        // Tabs
+        this.tabs();
+
+
     },
 
     reflow: function() {
@@ -36,6 +40,17 @@ module.exports  = {
         Foundation.Abide.defaults.validators    = _.extend(Foundation.Abide.defaults.validators,    Abide.validators);
 
         $('form[data-abide]').attr('novalidate', 'novalidate');
+
+    },
+
+    /**
+     * Custom utility for tabs
+     */
+    tabs: function() {
+
+        $('body').on('change.zf.tabs', '[data-tabs]', function(e) {
+
+        });
 
     }
 

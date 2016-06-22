@@ -6,7 +6,7 @@ BROWSERS:
 # Browserify Configuration
 BROWSERIFY:
 
-    # Bootstrap
+        # Bootstrap
     bootstrap:  "src/app/app.js"
 
     # Shorcuts

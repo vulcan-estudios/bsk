@@ -11,6 +11,9 @@ var AppModel        = require('./AppModel');
 // Helpers
 var Flash           = require('helpers/flash/flash');
 
+// Modals
+var Modal           = require('helpers/modal/modal');
+
 // Libs
 var Filter          = require('libs/filter/Filter');
 
@@ -18,6 +21,6 @@ module.exports = function() {
 
     var Router      = Backbone.Router.extend(AppRouter);
 
-    return { Config: Config, Flash: Flash.init(), Router: new Router(), Model: new AppModel(), View: AppView, Filter: Filter };
+    return { Config: Config, Flash: Flash.init(), Router: new Router(), Model: new AppModel(), View: AppView, Filter: Filter, Modal: Modal };
 
 };
