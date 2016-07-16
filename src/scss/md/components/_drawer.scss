@@ -1,0 +1,290 @@
+/* =============================================================================
+  MM - MATERIAL MENU
+  https://github.com/callmenick/Material-Menu
+============================================================================= */
+
+/**
+ * MM - Material Menu
+ *
+ * All the styles for the material menu here! I've prefixed them all with "mm",
+ * which means material menu.
+ */
+
+/**
+ * Toggle Button
+ *
+ * a.k.a. hamburger icon.
+ */
+.md-menu-toggle {
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 20;
+    width: $menu-toggle-width;
+    height: $menu-toggle-height;
+    background: linear-gradient(0deg, rgba($grey-600,0), rgba($grey-600,0) $menu-gradient-stop-1, $grey-600 $menu-gradient-stop-1, $grey-600 $menu-gradient-stop-2, rgba($grey-600,0) $menu-gradient-stop-2, rgba($grey-600,0) $menu-toggle-height);
+    font-size: 0;
+    text-indent: -9999px;
+}
+
+.md-menu-toggle::before,
+.md-menu-toggle::after {
+    display: block;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: $menu-toggle-layer-thickness;
+    background-color: $grey-600;
+    content: "";
+}
+
+.md-menu-toggle::before {
+    top: 0;
+    transform-origin: bottom left;
+}
+
+.md-menu-toggle::after {
+    bottom: 0;
+    transform-origin: top left;
+}
+
+.md-menu-toggle,
+.md-menu-toggle::before,
+.md-menu-toggle::after {
+    transition: all 0.5s;
+}
+
+/* active states */
+
+.md-menu-toggle.active {
+    transform: rotate(360deg);
+    position: absolute;
+}
+
+.md-menu-toggle.active::before {
+    width: 75%;
+    transform: translateY(7px) rotate(-45deg);
+}
+
+.md-menu-toggle.active::after {
+    width: 75%;
+    transform: translateY(-7px) rotate(45deg);
+}
+
+/**
+ * The actual menu
+ *
+ * Here be all the stuff for the menu itself.
+ */
+
+.md-menu {
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 10;
+    background-color: #fff;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    box-shadow: 0;
+    transform: translateX(-100%);
+    transition: transform 0.5s, box-shadow 0.5s;
+    &.md-menu__dark {
+        background-color: lighten($accent-color, 10%);
+    }
+}
+
+.md-menu.active {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transform: translateX(0);
+}
+
+@media all and ( min-width: 300px ) {
+    .md-menu {
+        width: 300px;
+        transform: translateX(-300px);
+    }
+}
+
+/* header */
+
+.md-menu__header {
+    position: relative;
+    width: 100%;
+    height: 188px;
+    background-color: $accent-color;
+}
+
+.md-menu__title {
+    position: absolute;
+    bottom: 12px; left: 12px;
+    margin: 0;
+    padding: 0;
+    color: #fff;
+    @extend .text-title;
+}
+
+/* list */
+
+.md-menu__items, .md-submenu__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.md-submenu__items-text {
+    cursor: pointer;
+}
+
+.md-menu__item {
+    display: block;
+    width: 100%;
+    opacity: 0;
+    transform: translateX(-50%);
+    height: rem-calc(44);
+    overflow: hidden;
+}
+
+.md-menu__item--collapse {
+    overflow:hidden;
+    height: rem-calc(44);
+}
+
+.md-menu__item.in-view {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+$delay: 0.01;
+@for $i from 1 through 1000 {
+    $delay: $delay + 0.025;
+    .md-menu__item.item-#{$i} {
+        transition: opacity 0.125s #{$delay}s, transform 0.125s #{$delay}s;
+    }
+}
+
+.md-menu__link, .md-submenu__items-text, .md-submenu__link {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    margin: 0px 0;
+    padding: 10px 10px 14px;
+    color: $grey-600;
+    text-decoration: none;
+    transition: background 0.5s, color 0.5s;
+    @extend .text-menu;
+    line-height: 1;
+    i {
+        font-size: 1.25rem;
+        margin-right: 0.5rem;
+    }
+    &:hover {
+        color: $accent-color;
+    }
+}
+
+.md-menu__items-light {
+    .md-menu__link, .md-submenu__items-text {
+        color: #fff;
+        i {
+            color: #fff;
+        }
+    }
+    .md-submenu__link {
+        color: #fff;
+        padding-left: 1rem;
+    }
+    .md-submenu__items {
+        li {
+
+        }
+    }
+}
+.md-menu__link-text, .md-submenu__link-text {
+    position: relative;
+    z-index: 2;
+}
+
+/* the touch effect, for when a link is touched */
+
+.md-menu__link--touch-effect {
+    display: block;
+    position: absolute;
+    z-index: 1;
+    width: 0; height: 0;
+    border-radius: 100%;
+    background-color: $grey-300;;
+    transform: scale(0);
+    transform-origin: 50% 50%;
+}
+
+.md-menu__items-light {
+    .md-menu__link--touch-effect {
+        background-color: lighten($accent-color, 30%)
+    }
+    .md-menu__link, .md-submenu__items-text {
+        &:hover {
+            background-color: lighten($accent-color, 5%)
+        }
+    }
+    .md-menu__item {
+        .md-submenu__items-chevron {
+            .mdi-chevron-down {
+                display: none;
+            }
+        }
+        &--expanded {
+            background-color: lighten($accent-color, 20%);
+            .md-submenu__items-text {
+                background-color: lighten($accent-color, 5%)
+            }
+            .md-submenu__items-chevron {
+                .mdi-chevron-right {
+                    display: none;
+                }
+                .mdi-chevron-down {
+                    display: inline-block;
+                }
+            }
+        }
+    }
+    .md-submenu__items {
+        li {
+            .md-submenu__link {
+                &:hover {
+                    background-color: lighten($accent-color, 15%)
+                }
+            }
+            &:last-child {
+                //border-bottom: 1px solid lighten($accent-color, 9%);
+            }
+        }
+    }
+}
+
+.md-menu__link--touch-effect.animating {
+    transform: scale(1);
+    transition: transform 0.5s;
+}
+
+/**
+ * Menu mask
+ *
+ * A mask that comes in and covers the wrapper when the menu is active.
+ */
+
+.md-menu-mask {
+    display: block;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 8;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.5s, visibility 0.5s;
+}
+
+.md-menu-mask.active {
+    visibility: visible;
+    opacity: 1;
+}

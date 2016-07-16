@@ -23,6 +23,7 @@
     "validate"
   ],
   "dependencies": {
+    "async": "^2.0.0",
     "babel-core": "^6.3.17",
     "babel-plugin-transform-es2015-arrow-functions": "^6.5.2",
     "babel-plugin-transform-es2015-block-scoped-functions": "^6.5.0",

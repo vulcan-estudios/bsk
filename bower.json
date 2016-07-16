@@ -1,5 +1,5 @@
 {
-  "name": "Hacaritama",
+  "name": "BSK",
   "version": "1.0.0",
   "authors": [
     "Iván Meléndez <argordmel@gmail.com>"
@@ -21,6 +21,8 @@
     "foundation-datepicker": "^1.5.3",
     "jquery.cookie": "jquery-cookie#^1.4.1",
     "purl": "^2.3.1",
-    "jquery-sticky": "^1.0.3"
+    "jquery-sticky": "^1.0.3",
+    "blueimp-file-upload": "^9.12.5",
+    "teamdf/jquery-number": "jquery-number#^2.1.6"
   }
 }

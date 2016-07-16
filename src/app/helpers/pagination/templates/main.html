@@ -1,0 +1,28 @@
+{{ if(pages > 1) { }}
+
+<ul class="pagination text-center">
+
+    <!-- PREV BUTTON -->
+    {{ if (current === 1) { }}
+        <li class="pagination-previous disabled">Anterior</li>
+    {{ } else { }}
+        <li class="pagination-previous">
+            <a href="{{=prevUrl}}" data-pushstate data-page="{{=(current-1)}}" data-perpage="{{=perPage}}">Anterior</a>
+        </li>
+    {{ } }}
+
+    <!-- INTERN NUMBERS -->
+    {{=items}}
+
+    <!-- NEXT BUTTON -->
+    {{ if (current === pages) { }}
+        <li class="pagination-next disabled">Siguiente</li>
+    {{ } else { }}
+        <li class="pagination-next">
+            <a href="{{=nextUrl}}" data-pushstate data-page="{{=(current+1)}}" data-perpage="{{=perPage}}">Siguiente</a>
+        </li>
+    {{ } }}
+
+</ul>
+
+{{ } }}

@@ -3,19 +3,19 @@
 //
 
 //Custom Style
-@media #{$small-up} {
+@include breakpoint(small up) {
     body {
 
     }
 }
 
-@media #{$medium-up} {
+@include breakpoint(medium up) {
     body {
 
     }
 }
 
-@media #{$large-up} {
+@include breakpoint(large up) {
     body {
 
     }

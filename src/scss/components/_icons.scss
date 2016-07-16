@@ -1,0 +1,19 @@
+//
+// UTILITY FOR ICONS
+//
+i {
+    &.mdi {
+        &--grey {
+            color: $grey-400;
+        }
+        &--green {
+            color: $success-color;
+        }
+        &--warning {
+            color: $warning-color;
+        }
+        &--alert {
+            color: $alert-color;
+        }
+    }
+}

@@ -1,0 +1,67 @@
+// Reference:
+// http://www.google.com/design/spec/components/tabs.html
+
+$tab-background: $primary-color;
+$tab-background-active: $primary-color;
+$tab-item-color: white;
+
+//@include foundation-tabs;
+
+.tabs {
+    border: 0;
+    .tabs-title {
+        a {
+            @extend .text-button;
+            padding-top: 1rem;
+            margin-bottom: 0;
+        }
+        &.is-active a {
+            box-shadow: 0 -3px 0 0 $secondary-color inset;
+        }
+        & > a:hover {
+            background: scale-color($primary-color, $lightness: -5%);
+        }
+    }
+}
+
+.md-tabs, .md-card--tabs {
+    .tabs {
+        &.vertical {
+            li {
+                width: 100%;
+                a {
+                    background-color: transparent;
+                    color: #626262;
+                    font-size: 14px;
+                    padding: 17px 14px 17px 17px;
+                    text-decoration: none;
+                    font-weight: 300;
+                    box-shadow: none;
+                    i {
+                        float: right;
+                        font-size: 1.25rem;
+                        vertical-align: middle;
+                    }
+                    &:hover, &:focus, &:active {
+                        background-color: transparent;
+                    }
+                }
+
+                &.is-active {
+                    a {
+                        background-color: $grey-300;
+                        color: #626262;
+                        i {
+                            color: $accent-color;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .tabs-content {
+        &.vertical {
+            border: 0;
+        }
+    }
+}

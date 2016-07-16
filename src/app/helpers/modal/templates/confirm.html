@@ -1,4 +1,4 @@
-<div id="<%=id%>" class="reveal reveal-modal" data-reveal data-options="closeOnClick: false; closeOnEsc: false;">
+<div id="{{=id}}" class="reveal reveal-modal" data-reveal data-options="closeOnClick: false; closeOnEsc: false;">
 
     <div class="reveal-modal-header">
         <div class="row">
@@ -6,7 +6,7 @@
                 <button class="close-button btn-cancel" data-close aria-label="Close modal" type="button">
                     <span aria-hidden="true"><i class="mdi mdi-close"></i></span>
                 </button>
-                <h2><%= title %></h2>
+                <h2>{{= title }}</h2>
             </div>
         </div>
     </div>
@@ -14,7 +14,7 @@
     <div class="reveal-modal-body">
         <div class="row">
             <div class="small-12 columns">
-                <p class="reveal-modal-body__text text-left"><%=message%></p>
+                <p class="reveal-modal-body__text text-left">{{=description}}</p>
             </div>
         </div>
     </div>
@@ -22,8 +22,8 @@
     <div class="reveal-modal-actions">
         <div class="small-12 columns">
             <div class="button-group float-right">
-                <button class="btn-cancel   md-button md-button__flat md-ripple" data-close><%=buttonCancel%></button>
-                <button class="btn-confirm  md-button md-button__flat md-ripple" data-close><%=buttonAccept%></button>
+                <button class="btn-cancel   md-button md-button__flat md-ripple" data-close>{{=buttonCancel}}</button>
+                <button class="btn-confirm  md-button md-button__flat md-ripple" data-close>{{=buttonAccept}}</button>
             </div>
         </div>
     </div>

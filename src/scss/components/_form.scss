@@ -1,0 +1,39 @@
+//
+// ONLY FORM
+// Utility for forms
+//
+
+@include breakpoint(small up) {
+    body {
+        form {
+            h5 {
+                &.text-headline {
+                    margin-bottom: 2rem;
+                }
+            }
+            label, .md-switch span {
+                color: $dark-gray;
+            }
+            
+            .wrap-form__actions {
+                margin-top: 3rem;
+            }
+        }
+    }
+}
+
+@include breakpoint(medium up) {
+    body {
+        form {
+
+        }
+    }
+}
+
+@include breakpoint(large up) {
+    body {
+        form {
+
+        }
+    }
+}

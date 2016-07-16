@@ -19,6 +19,9 @@ module.exports   = {
 
         // Only positives number
         'pint': /^[0-9]+$/,
+        
+        // Decimal number
+        'decimal': /^(?!0\d|$)\d*(\.\d{1,4})?$/,
 
         // Year format
         'year': /^(19|20)\d\d/,
@@ -40,6 +43,63 @@ module.exports   = {
      * <input type="text" data-validator="multi-email" />
      */
     validators: {
+
+        // Datepicker Checkin
+        'datepicker-range': function($el, required, parent) {
+
+            if(!$el.val()) { // If not has val but is required
+                return (required) ? false : true;
+            }
+
+            var container   = $el.parents('[data-datepicker]:first');
+            var format      = ($el.attr('data-format') || 'YYYY-MM-DD').toUpperCase();
+
+            // Checkin and checkout input
+            var checkin     = ($el.hasClass('datepicker-checkin'))  ? $el   :   container.find('.datepicker-checkin:first');
+            var checkout    = ($el.hasClass('datepicker-checkout')) ? $el   :   container.find('.datepicker-checkout:first');
+
+            // Values
+            var valCheckin  = checkin.val()     ? moment(checkin.val(), format)     : '';
+            var valCheckout = checkout.val()    ? moment(checkout.val(), format)    : '';
+
+            // Boolean Valid
+            var valid       = true;
+
+            if($el.hasClass('datepicker-checkin')) {
+
+                if(container.size() > 0 && checkout.size() === 0) { // If not exist
+                    console.log("Missing the datepicker-checkout class into data-datepicker");
+                    return false;
+                }
+
+                // If has checkout
+                if (checkout.size() > 0 && valCheckout) {
+                    if( valCheckin > valCheckout ) {
+                        valid   = false;
+                    } else if(!valCheckout) {
+                        setTimeout(function() {
+                            container.find('.datepicker-checkout:first').trigger('focus');
+                        }, 500);
+                    }
+                }
+
+            } else {
+
+                if(container.size() > 0 && checkin.size() === 0) { // If not exist
+                    console.log("Missing the datepicker-checkin class into datepicker-range");
+                    valid   = false;
+                }
+
+                // If has checkout
+                if (checkin.size() > 0 && valCheckin && (valCheckin > valCheckout) ) {
+                    valid   = false;
+                }
+
+            }
+
+            return valid;
+
+        },
 
         // Validator for input with multiple email: a@b.com, c@d.com, e@f.com
         'multi-email': function($el, required, parent) {

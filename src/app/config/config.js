@@ -28,7 +28,7 @@ module.exports = {
     /**
      * ENABLE PUSHSTATE
      */
-    PUSHSTATE: false,
+    PUSHSTATE: true,
 
     /**
      * ROOT PATH FOR HISTORY AND PUSHSTATE
@@ -38,6 +38,15 @@ module.exports = {
     /**
      * API SERVER
      */
-    SERVER: connections[ local.connection || 'production']
+    SERVER: connections[ local.connection || 'production'],
+
+    /**
+     * TEMPLATE SETTINGS
+     */
+    TEMPLATE_SETTINGS: {
+        evaluate    : /{{([\s\S]+?)}}/g,
+        interpolate : /{{=([\s\S]+?)}}/g,
+        escape      : /{{-([\s\S]+?)}}/g
+    }
 
 };

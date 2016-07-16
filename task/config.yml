@@ -6,7 +6,7 @@ BROWSERS:
 # Browserify Configuration
 BROWSERIFY:
 
-        # Bootstrap
+    # Bootstrap
     bootstrap:  "src/app/app.js"
 
     # Shorcuts
@@ -66,6 +66,14 @@ PATHS:
         - "bower_components/jquery.cookie/jquery.cookie.js"
         - "bower_components/purl/purl.js"
         - "bower_components/jquery-sticky/jquery.sticky.js"
+        - "bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js"
+        - "bower_components/blueimp-load-image/js/load-image.all.min.js"
+        - "bower_components/blueimp-canvas-to-blob/js/canvas-to-blob.min.js"
+        - "bower_components/blueimp-file-upload/js/jquery.iframe-transport.js"
+        - "bower_components/blueimp-file-upload/js/jquery.fileupload.js"
+        - "bower_components/blueimp-file-upload/js/jquery.fileupload-process.js"
+        - "bower_components/blueimp-file-upload/js/jquery.fileupload-image.js"
+        - "bower_components/teamdf/jquery-number/jquery.number.min.js"
 
     # Paths to JavaScript application into one file
     javascript:

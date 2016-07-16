@@ -2,7 +2,7 @@
 /**
  * MAIN VIEW
  */
-var Zurb        = require('libs/zurb/zurb');
+var Zurb        = require('libs/zurb/Zurb');
 var Bind        = require('helpers/form/bind');
 
 module.exports  = {

@@ -7,10 +7,12 @@
 
 // Components
 var Counter     = require('helpers/form/counter');
+var Currency    = require('helpers/form/currency');
 var Datepicker  = require('helpers/form/datepicker');
 var Password    = require('helpers/form/password');
 var Timepicker  = require('helpers/form/timepicker');
 var Upload      = require('helpers/form/upload');
+var Switch      = require('helpers/form/switch');
 
 module.exports   = {
 
@@ -20,10 +22,17 @@ module.exports   = {
      */
     init: function(cb) {
 
+        $(Switch);
+
+        $('body').find('input:visible').not('readonly').not('disabled').first().trigger('focus');
+
         setTimeout(function() {
 
             // Bind Counter
             Counter.init('[data-counter]');
+
+            // Bind Currency
+            Currency.init('[data-currency], [data-decimal]');
 
             // Bind datepicker
             Datepicker.init('[data-datepicker]');

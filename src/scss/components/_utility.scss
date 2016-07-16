@@ -1,0 +1,52 @@
+//
+// UTILITY CLASS AND ELEMENTS
+//
+@include breakpoint(small up) {
+    body {
+        .text-small-left {
+            text-align: left;
+        }
+        .text-small-center {
+            text-align: center;
+        }
+        .text-small-right {
+            text-align: right;
+        }
+        .no-padding {
+            padding: 0;
+        }
+
+        //
+        // Vertical Align
+        //
+        .v-align-container {
+            width: 100%;
+            display: table;
+            .v-align-content {
+                width: 100%;
+                display: table-cell;
+                vertical-align: middle;
+            }
+        }
+    }
+}
+
+@include breakpoint(medium up) {
+    body {
+        .text-medium-left {
+            text-align: left;
+        }
+        .text-medium-center {
+            text-align: center;
+        }
+        .text-medium-right {
+            text-align: right;
+        }
+    }
+}
+
+@include breakpoint(large up) {
+    body {
+
+    }
+}

@@ -1,0 +1,89 @@
+//
+// ONLY INPUT GROUP
+// Utility for forms
+//
+
+@include breakpoint(small up) {
+    body {
+
+        // Input group
+        .input-group, .input-group-float {
+            .input-group-label {
+                background-color: transparent;
+                &.input-group-label__background {
+                    background: #e6e6e6;
+                }
+                border: 0;
+                i {
+                    float: left;
+                    font-size: 1.5rem;
+                    margin-top: 1.875rem;
+                }
+                &.input-group-label__icon {
+                    cursor: pointer;
+                }
+                &.input-group-label__password {
+                    .input-group-label__password_on {
+                        display: block;
+                    }
+                    .input-group-label__password_off {
+                        display: none;
+                    }
+                    &.is-active {
+                        .input-group-label__password_on {
+                            display: none;
+                        }
+                        .input-group-label__password_off {
+                            display: block;
+                        }
+                    }
+                }
+            }
+        }
+
+        .input-group-float {
+            margin: 0;
+            position: relative;
+            top: rem-calc(40);
+            height: 0;
+            &.input-group-float__right {
+                float: right;
+                .input-group-label {
+                    text-align: right;
+                }
+            }
+            &.input-group-float__left {
+                float: left;
+                .input-group-label {
+                    text-align: left;
+                }
+            }
+            .input-group-label {
+                i {
+                    float: none;
+                    margin: 0;
+                }
+            }
+        }
+        label > .input-group-float {
+            top: rem-calc(21);
+        }
+
+    }
+}
+
+@include breakpoint(medium up) {
+    body {
+        form {
+
+        }
+    }
+}
+
+@include breakpoint(large up) {
+    body {
+        form {
+
+        }
+    }
+}

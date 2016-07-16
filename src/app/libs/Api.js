@@ -26,93 +26,101 @@
  *
  */
 
-const config = require('../config/config');
+const Config = require('../config/config');
+
+// Support cors
+$.support.cors = true;
 
 module.exports = {
 
+    lastError: {
+
+    },
 
     get: function (endpoint) {
 
-        var _this   = this;
-        var ajax    = _this._send(endpoint, 'GET');
-        ajax.fail(function (xhr, text) {
-
-            //TODO
-            _this.error(endpoint, xhr, text);
-        });
-        return ajax;
+        return this._send(endpoint, 'GET');
 
     },
 
     post: function (endpoint, data) {
 
-        var _this   = this;
-        var ajax    = _this._send(endpoint, 'POST', data);
-        ajax.fail(function (xhr, text) {
-
-            //TODO
-            _this.error(endpoint, xhr, text);
-        });
-        return ajax;
+        return this._send(endpoint, 'POST', data);
 
     },
 
-    update: function (endpoint, data) {
+    put: function (endpoint, data) {
 
-        var _this   = this;
-        var ajax    = _this._send(endpoint, 'POST', data);
-        ajax.fail(function (xhr, text) {
-
-            //TODO
-            _this.error(endpoint, xhr, text);
-        });
-        return ajax;
+        return this._send(endpoint, 'PUT', data);
 
     },
 
     destroy: function (endpoint) {
 
-        var _this   = this;
-        var ajax    = _this._send(endpoint, 'DELETE');
-        ajax.fail(function (xhr, text) {
-
-            //TODO
-            _this.error(endpoint, xhr, text);
-        });
-        return ajax;
+       return this._send(endpoint, 'DELETE');
 
     },
 
-    error: function (endpoint, xhr, text) {
-        var error = {
+    setError: function (endpoint, xhr, text) {
+
+        let data = {
             'statusCode':   xhr.statusCode().status,
             'error':        text,
             'endpoint':     endpoint
         };
-        return $.parseJSON(JSON.stringify(error));
+
+        let error = (!xhr.responseJSON) ? data : $.extend(data, xhr.responseJSON);
+        if(error.error === 'error') {
+            error.error  = 'Se ha producido un error en la comunicación con el servidor. Por favor intenta más tarde.';
+        }
+
+        this.lastError  = error;
+
+        return this.lastError;
+
     },
 
     _send: function(endpoint, type, params) {
 
-        //Url
-        var url         = App.Filter.get(config.SERVER.host, 'rtrim', '/') +'/'+ App.Filter.get(endpoint, 'trim', '/');
-        var headers     = config.SERVER.headers;
+        var _this       = this;
 
-        //Check type
-        return $.ajax({
-            url:        url,
-            async:      true,
-            dataType:   'json',
-            type:       type,
-            data:       (type === 'GET') ? undefined : params,
+        _this.lastError = {};
+
+        //Url
+        var url         = App.Filter.get(Config.SERVER.host, 'rtrim', '/') +'/'+ App.Filter.get(endpoint, 'trim', '/');
+        var headers     = Config.SERVER.headers;
+
+        // Config
+        var prop        = {
+            'url':          url,
+            'async':        true,
+            'dataType':     'json',
+            'type':         type.toUpperCase(),
+            'data':         (type === 'GET') ? undefined : params,
             beforeSend: function(req) {
                 if(headers) {
+                    let i;
                     for(i in headers) {
                         req.setRequestHeader(i, headers[i]);
                     }
                 }
             }
+        };
+
+        //Request
+        const request = $.ajax(prop);
+
+        request.done(function () {
+
+        }).fail(function (xhr, text) {
+
+            // Set error
+            _this.setError(endpoint, xhr, text);
+        }).always(function () {
+
         });
+
+        return request;
 
     }
 

@@ -2,6 +2,11 @@
 
 @import "modules";
 
+$roboto:			'Roboto', sans-serif;
+
+// Material Design
+@import 'md/md';
+
 //Imports custom pages
 @import "pages/home";
 
@@ -9,20 +14,32 @@
 @import "pages/_shared/footer";
 
 //Global Style
-@media #{$small-up} {
+@include breakpoint(small up) {
+    body {
+        font-family: $roboto;
+    }
+}
+
+@include breakpoint(medium up) {
     body {
 
     }
 }
 
-@media #{$medium-up} {
+@include breakpoint(large up) {
     body {
+        #main-shell {
+            width: 81%;
+            margin-left: 19%;
+            margin-bottom: 50rem;
 
-    }
-}
+            main, .wrap-topbar {
+                padding: 0 2rem;
+            }
 
-@media #{$large-up} {
-    body {
-
+            .wrap-view__card {
+                margin-top: 2rem;
+            }
+        }
     }
 }

@@ -1,0 +1,51 @@
+//
+// UTILITY FOR MODALS
+//
+.reveal-modal {
+
+    border: 2px solid lighten($accent-color, 30%);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+
+    .reveal-modal-header {
+        h2 {
+            margin-top: 1rem;
+            font-size: rem-calc(20);
+        }
+    }
+    .reveal-modal-body {
+        p {
+            color:      #9a9a9a;
+            font-size:  1rem;
+            padding:    0rem 0;
+            font-weight: 300;
+        }
+    }
+    .reveal-modal-actions {
+
+        //margin-top: 1rem;
+
+        .button-group {
+            margin-bottom: 0;
+        }
+
+        .md-button {
+            margin-left: 0.5rem;
+            font-size: 0.875rem;
+            min-width: 100px;
+            &:first-of-type {
+                margin-left: 0;
+            }
+        }
+
+    }
+
+}
+
+@include breakpoint(large up) {
+    .reveal-modal {
+        &.small {
+            max-width: 27.625rem;
+            width: 40%;
+        }
+    }
+}

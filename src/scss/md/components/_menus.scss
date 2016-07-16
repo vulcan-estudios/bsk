@@ -1,0 +1,44 @@
+// Reference:
+// http://www.google.com/design/spec/components/menus.html
+
+.dropdown-pane, .is-dropdown-submenu {
+    @extend .z-depth-2;
+    border-radius: $global-radius;
+    background: $white;
+    border: 2px;
+    padding: .5rem 0;
+    overflow: hidden;
+    width: auto;
+    &.is-dropdown-submenu {
+        margin-top: -12px;
+    }
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    li {
+        height: rem-calc(48);
+        line-height: rem-calc(48);
+        //transition-delay: 0.012s;
+    }
+    li a {
+        padding: 0rem 1.5rem;
+        line-height: 3rem;
+        font-size: rem-calc(14);
+        color: $black-87;
+        display: block;
+        &:hover {
+            background: $grey-200;
+        }
+    }
+    transition: opacity .4s ease-in-out, max-height .4s ease-in-out;
+}
+.dropdown-pane[aria-hidden="true"] {
+    max-height: 0;
+    opacity: 0;
+}
+.dropdown-pane[aria-hidden="false"] {
+    max-height: 200px;
+    opacity: 1;
+}

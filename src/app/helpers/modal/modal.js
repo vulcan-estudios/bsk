@@ -24,7 +24,7 @@ module.exports = {
         var attrs   = _({}).extend({
             id:             'modal-' + Date.now(),
             title:          '',
-            message:        '',
+            description:    '',
             data:           {},
             iconClose:      false,
             iconCloseLink:  false,

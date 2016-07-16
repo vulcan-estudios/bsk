@@ -112,6 +112,27 @@ module.exports = {
         toRender.html           = function(html) {
             this.clean();
             this.$el.html(html);
+            if(toRender.events) {
+                this.delegateEvents();
+            }
+        };
+
+        toRender.append         = function(html, selector) {
+            if(typeof html === 'string') {
+                (selector) ? this.$el.find(selector).append(html) : this.$el.append(html);
+            } else {
+                this.viewsLoaded.push(html);
+                (selector) ? this.$el.find(selector).append(html.el) : this.$el.append(html.el);
+            }
+        };
+
+        toRender.prepend        = function(html, selector) {
+            if(typeof html === 'string') {
+                (selector) ? this.$el.find(selector).prepend(html) : this.$el.prepend(html);
+            } else {
+                this.viewsLoaded.push(html);
+                (selector) ? this.$el.find(selector).prepend(html.el) : this.$el.prepend(html.el);
+            }
         };
 
         // Clean view
@@ -131,6 +152,7 @@ module.exports = {
 
         var config          = {
             tagName: 'main',
+            className: 'small-11 small-centered large-12',
             data: data
         };
 
@@ -148,8 +170,11 @@ module.exports = {
      */
     Component: function(name, data) {
 
+        // Get Folder - Component
+        var toAppendFolder  = Components[name];
+
         // Get Component
-        var toAppend    = Components[name];
+        var toAppend        = !toAppendFolder ? null : toAppendFolder[name];
         if(!toAppend) {
             console.error('COMPONENT "'+name+'" NOT FOUND INTO "views/_shared/components/" TO APPEND INTO MAIN VIEW');
             return;
@@ -166,9 +191,18 @@ module.exports = {
             this.$el.html(html);
         };
 
+        toAppend.append         = function(html) {
+            this.$el.append(html);
+        };
+
+        toAppend.prepend        = function(html) {
+            this.$el.prepend(html);
+        };
+
         var config      = {
             data:       data
         };
+
         var Component   = Backbone.View.extend(_.extend(config, toAppend));
         return new Component();
 

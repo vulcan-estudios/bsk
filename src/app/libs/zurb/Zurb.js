@@ -17,6 +17,9 @@ module.exports  = {
         // Abide
         this.abide();
 
+        // Sticky
+        this.sticky();
+
         // Tabs
         this.tabs();
 
@@ -40,6 +43,16 @@ module.exports  = {
         Foundation.Abide.defaults.validators    = _.extend(Foundation.Abide.defaults.validators,    Abide.validators);
 
         $('form[data-abide]').attr('novalidate', 'novalidate');
+
+    },
+
+    /**
+     * Custom utility for sticky
+     */
+    sticky: function() {
+
+        $('.md-topbar__sticky').unstick();
+        $('.md-topbar__sticky').sticky({topSpacing: 0});
 
     },
 
