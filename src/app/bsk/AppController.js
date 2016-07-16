@@ -12,9 +12,6 @@ module.exports = {
     // Callback before execute any controller
     initialize: function() {
 
-        // Hide search form
-        App.Model.Header.set({module: this.module, search: false});
-
     }
 
 };

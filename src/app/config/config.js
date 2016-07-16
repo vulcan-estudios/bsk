@@ -28,7 +28,7 @@ module.exports = {
     /**
      * ENABLE PUSHSTATE
      */
-    PUSHSTATE: true,
+    PUSHSTATE: false,
 
     /**
      * ROOT PATH FOR HISTORY AND PUSHSTATE

@@ -20,9 +20,7 @@ module.exports = {
     // Home
     index: function() {
 
-        var Model       = new App.Model.Example();
-        console.log(Model.get('id'));
-
+        console.log(App.Model.Example.get('id'));
         App.View.Render();
 
     },
@@ -30,32 +28,32 @@ module.exports = {
     // List all elements
     list: function() {
 
-        var Model       = new App.Model.Example({id: 000, name: 'Model'});
+        App.Model.Example.set({id: 000, name: 'Model'});
 
-        var Collection  = new App.Model.Example().Collection([
+        App.Model.Example.setCollection([
             {id: 123, name: 'A'},
             {id: 456, name: 'B'},
             {id: 789, name: 'C'},
-            Model
+            App.Model.Example
         ]);
 
-        Collection.each(function (model, index, all) {
+        App.Model.Example.toCollection().each(function (model, index, all) {
             console.log(model.get("name"));
             // A
             // B
             // C
         });
 
-        Model.on("change:id", function(model){
+        App.Model.Example.on("change:id", function(model){
             var id = model.get("id");
             console.log("Changed my id to " + id );
         });
 
-        Model.set('id', 123);
+        App.Model.Example.set('id', 123);
 
-        console.log(Model.get('id'));
+        console.log(App.Model.Example.get('id'));
 
-        App.View.Render({ data: Model.getElements() });
+        App.View.Render({ data: App.Model.Example.getElements() });
 
     },
 

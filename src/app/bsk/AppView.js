@@ -6,7 +6,7 @@
 
 var Views           = require('bulk-require')(__dirname + '/..', ['./views/**/*.js']).views;
 var Partials        = require('bulk-require')(__dirname + '/..', ['./views/_shared/partials/**/*.html']).views._shared.partials || {};
-var Components      = Views._shared.components;
+var Components      = (Views._shared) ? Views._shared.components : {};
 
 module.exports = {
 
