@@ -16,9 +16,12 @@ plugins.bulkify     = require('bulkify');
 plugins.folderify   = require('folderify');
 plugins.guglify     = require('gulp-uglify');
 plugins.gutil       = require('gulp-util');
+plugins.rsass       = require('gulp-ruby-sass');
 plugins.path        = require('path');
 plugins.pathmodify  = require('pathmodify');
 plugins.source      = require('vinyl-source-stream');
+plugins.buffer      = require('vinyl-buffer');
+plugins.babelify    = require('babelify');
 plugins.stringify   = require('stringify');
 
 // Load Config
@@ -35,16 +38,19 @@ function loadConfig() {
 // Utility for sass
 
 // Compass
-gulp.task('compass',        tasks.compass(gulp, plugins, config));
-gulp.task('compass:prod',   tasks.compass(gulp, plugins, config, true));
+gulp.task('compass',            tasks.compass(gulp, plugins, config));
+gulp.task('compass:watch',      tasks.compass(gulp, plugins, config, 'watch'));
+gulp.task('compass:prod',       tasks.compass(gulp, plugins, config, 'prod'));
 
 // Sass
-gulp.task('sass',           tasks.sass(gulp, plugins, config));
-gulp.task('sass:prod',      tasks.sass(gulp, plugins, config, true));
+gulp.task('sass',               tasks.sass(gulp, plugins, config));
+gulp.task('sass:watch',         tasks.sass(gulp, plugins, config, 'watch'));
+gulp.task('sass:prod',          tasks.sass(gulp, plugins, config, 'prod'));
 
 // Ruby Sass
-gulp.task('rsass',          tasks.rsass(gulp, plugins, config));
-gulp.task('rsass:prod',     tasks.rsass(gulp, plugins, config, true));
+gulp.task('rsass',              tasks.rsass(gulp, plugins, config));
+gulp.task('rsass:watch',        tasks.rsass(gulp, plugins, config, 'watch'));
+gulp.task('rsass:prod',         tasks.rsass(gulp, plugins, config, 'prod'));
 
 //------------------------------------------------------------------------------
 
@@ -54,7 +60,7 @@ gulp.task('rsass:prod',     tasks.rsass(gulp, plugins, config, true));
 //
 
 gulp.task('vendors',        tasks.vendors(gulp, plugins, config));
-gulp.task('vendors:prod',   tasks.vendors(gulp, plugins, config, true));
+gulp.task('vendors:prod',   tasks.vendors(gulp, plugins, config, 'prod'));
 
 //------------------------------------------------------------------------------
 
@@ -62,16 +68,16 @@ gulp.task('vendors:prod',   tasks.vendors(gulp, plugins, config, true));
 // Utility for browserify
 //
 
-gulp.task('browserify',     tasks.browserify(gulp, plugins, config));
-gulp.task('browserify:prod',tasks.browserify(gulp, plugins, config, true));
+gulp.task('browserify',         tasks.browserify(gulp, plugins, config));
+gulp.task('browserify:watch',   tasks.browserify(gulp, plugins, config, 'watch'));
+gulp.task('browserify:prod',    tasks.browserify(gulp, plugins, config, 'prod'));
 
 //------------------------------------------------------------------------------
 
 //
 // Utility for watch
 //
-gulp.task('watch',          tasks.watch(gulp, plugins, config));
-gulp.task('watch:prod',     ['compass:prod', 'vendors:prod', 'browserify:prod', 'watch']);
+gulp.task('reload',             tasks.reload(gulp, plugins, config));
 
 //------------------------------------------------------------------------------
 
@@ -79,5 +85,14 @@ gulp.task('watch:prod',     ['compass:prod', 'vendors:prod', 'browserify:prod', 
 //
 // Defaults Task
 //
-gulp.task('default',        ['browserify', 'compass', 'watch']);
-gulp.task('build',          ['watch:prod']);
+gulp.task('default',        ['browserify:watch',    'compass:watch',    'reload']);
+gulp.task('watch:compass',  ['browserify:watch',    'compass:watch',    'reload']);
+gulp.task('watch:sass',     ['browserify:watch',    'sass:watch',       'reload']);
+gulp.task('watch:rsass',    ['browserify:watch',    'rsass:watch',      'reload']);
+
+gulp.task('build',          ['browserify:prod',     'compass:prod']);
+gulp.task('build:compass',  ['browserify:prod',     'compass:prod']);
+gulp.task('build:sass',     ['browserify:prod',     'sass:prod']);
+gulp.task('build:rsass',    ['browserify:prod',     'rsass:prod']);
+
+gulp.task('build:dev',      ['browserify',          'compass']);

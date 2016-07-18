@@ -3,6 +3,14 @@ BROWSERS:
     - "last 2 versions"
     - "ie >= 9"
 
+
+# Babel Config
+BABEL:
+
+    presets:
+        - "es2015"
+
+
 # Browserify Configuration
 BROWSERIFY:
 

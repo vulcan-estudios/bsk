@@ -1,5 +1,5 @@
 /**
- * Gulp Watch task
+ * Gulp Reload task
  * Watch for changed files
  *
  * @param  {Gulp} gulp
@@ -19,7 +19,7 @@ module.exports = function (gulp, plugins, config, prod) {
         // Listen
         plugins.livereload.listen();
         // Paths
-        var paths   = [config.PATHS.dist+'/**/*.css', config.PATHS.dist+'/**/*.js'];
+        var paths   = [config.PATHS.dist+'/**/*.css', config.PATHS.dist+'/**/*.js', config.PATHS.php+'/**/*.phtml'];
         // Watch
         gulp.watch(paths, function(event) {
             gulp.src(event.path)
