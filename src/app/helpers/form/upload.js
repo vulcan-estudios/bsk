@@ -47,7 +47,7 @@ module.exports   = {
         var _this           = this;
         $(element).not('.file-upload-initialized').each(function() {
 
-            $input          = $(this);
+            let $input          = $(this);
             if($input.attr('id') === undefined) {
                 $input.attr('id', 'file-upload__input-'+ Date.now());
             };

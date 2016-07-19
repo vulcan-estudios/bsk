@@ -4,7 +4,7 @@ module.exports = {
 
     render: function (element, conf) {
 
-        $element = $(element);
+        let $element = $(element);
 
         conf = _({
             baseUrl: '/',

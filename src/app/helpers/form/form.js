@@ -3,6 +3,7 @@
  * Form
  *
  */
+$.serializeJSON.defaultOptions.parseAll = true;
 
 module.exports   = {
 
@@ -22,7 +23,8 @@ module.exports   = {
             if($(this).data('decimal') !== undefined) {
                 return $.number( this.value, 2, '.', '' );
             }
-            return $.trim(this.value);
+            var tmpValue    = $.trim(this.value);
+            return (tmpValue) ? tmpValue : '0'; // Send zero to send empty value
         }).serializeJSON({checkboxUncheckedValue: "0"});
 
         return (field) ? data[field] : data;
@@ -57,6 +59,8 @@ module.exports   = {
             } else if(typeof value === 'object' && value.id) {
                 value   = value.id;
             }
+
+            let $input;
 
             if(form) {
                 $input  = (model) ? $('[name="'+ model +'['+ key +']"]', form) : $('[name="'+key+'"]', form);
@@ -199,8 +203,9 @@ module.exports   = {
         $input.html('<option value="">Loading...</option>');
 
         each(data, function(i, j) {
-            var row     = data[i];
-            var pkValue = row[fields.value] || '';
+            var row         = data[i];
+            var attrs       = fields.attrs || [];
+            var pkValue     = row[fields.value] || '';
             var option;
 
             if(Array.isArray(fields.option)) {
@@ -224,7 +229,15 @@ module.exports   = {
 
             if ((pkValue || pkValue === '0') && option) {
                 var selected    = (pkValue === value) ? 'selected="selected"' : '';
-                options += '<option value="' + pkValue + '" '+selected+'>' + option + '</option>';
+                var dataAttrs   = [];
+                if(attrs) {
+                    _.each(attrs, function(i) {
+                        if(row[i]) {
+                            dataAttrs.push(`data-${i}="${row[i]}"`);
+                        }
+                    });
+                }
+                options += '<option value="' + pkValue + '" '+ selected +' '+ dataAttrs.join(' ') +'>' + option + '</option>';
             }
         }, function(){
             $input.empty();
