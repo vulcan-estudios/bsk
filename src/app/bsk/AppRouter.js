@@ -74,6 +74,7 @@ module.exports = {
 
         for(name in Controllers) {
             if(!/controller/i.test(name)) {
+                let submodule;
                 for(submodule in Controllers[name]) {
 
                     var routes      = {};
@@ -167,26 +168,26 @@ module.exports = {
             }, 200);
         }
 
-    }, 
-    
+    },
+
     // Redirect internal url (without change the url)
     internal: function(target, cb) {
-        
+
         Backbone.history.loadUrl(target);
-        
+
         if(cb) {
             setTimeout(function() {
                 cb();
             }, 200);
         }
-        
+
     },
-    
+
     // History back
     back: function(index) {
-        
+
         history.back(index || null);
-        
+
     }
 
 };

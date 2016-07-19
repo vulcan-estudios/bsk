@@ -17,8 +17,8 @@ module.exports  = function() {
             objCollection: null,
 
             setCollection: function(data) {
-                var _this       = this;
-                tmpCollection   = Backbone.Collection.extend({
+                var _this           = this;
+                var tmpCollection   = Backbone.Collection.extend({
                     model: Backbone.Model.extend(model)
                 });
                 _this.objCollection = new tmpCollection(data);
