@@ -77,6 +77,7 @@ module.exports   = {
                 singleFileUploads:  true,
                 beforeSend: function(req) {
                     if(config.SERVER.headers) {
+                        let i;
                         for(i in config.SERVER.headers) {
                             req.setRequestHeader(i, config.SERVER.headers[i]);
                         }
