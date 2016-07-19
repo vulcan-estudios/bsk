@@ -18,7 +18,7 @@ module.exports = function (gulp, plugins, config, option) {
     return function() {
 
         return gulp.src(config.PATHS.vendors)
-        .pipe(plugins.babel({presets: config.BABEL.presets}))
+        //.pipe(plugins.babel({presets: config.BABEL.presets}))
         .pipe(plugins.concat('vendors.min.js'))
         .pipe(plugins.uglify())
         .pipe(gulp.dest(config.PATHS.dist + '/js'));
