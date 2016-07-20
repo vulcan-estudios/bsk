@@ -24,12 +24,13 @@ module.exports   = {
     bind: function(element) {
 
         // Bind elements
-        $(element).each(function() {
+        $(element).not('[data-plugin-loaded]').each(function() {
             if($(this).attr('data-currency') !== undefined) {
                 $(this).number(true, 2, '.', ',');
             } else {
                 $(this).number(true, 2, '.', '');
             }
+            $(this).attr('data-plugin-loaded', true);
         });
 
     }

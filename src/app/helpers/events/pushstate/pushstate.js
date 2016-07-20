@@ -27,7 +27,7 @@ module.exports = function() {
 
         e.preventDefault();
         App.Router.back();
-        
+
     });
 
 };

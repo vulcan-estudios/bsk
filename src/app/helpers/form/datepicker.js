@@ -26,9 +26,10 @@ module.exports  = {
         var $inputs      = $(element).find('input');
 
         // Foreach input
-        $($inputs).each(function(i) {
+        $($inputs).not('[data-plugin-loaded]').each(function(i) {
 
             var $input      = $(this);
+            $input.attr('data-plugin-loaded', true);
 
             // Prepen Icon
             $input.parent().prepend(templateIcon);

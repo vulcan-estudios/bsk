@@ -167,7 +167,7 @@ module.exports   = {
      */
     dbSelect: function($input, data, fields, blank, value) {
 
-        if(!data) {
+        if(!data || !Array.isArray(data)) {
             return;
         }
 

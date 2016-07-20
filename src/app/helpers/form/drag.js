@@ -14,6 +14,10 @@ module.exports  =  {
     init: function(handle, container, cb) {
 
         var list	= (container instanceof $) ? container[0] : document.getElementById(container.replace('#', ''));
+        if($(list).attr('data-plugin-loaded')) {
+            return;
+        }
+        $(list).attr('data-plugin-loaded', true);
         Sortable.create(list, {
             animation: 300,
             handle: (handle === undefined)  ? '.button-drag' : handle,

@@ -8,21 +8,6 @@ var Form        = require('helpers/form/form');
 var config      = require('../../config/config');
 var template    = _.template(require('./templates/upload.html'));
 
-$('body').on('click', '.file_upload__placeholder__delete', function(e) {
-    e.preventDefault();
-    var fileUpload  = $(this).parents('.file-upload');
-    var inputReset  = fileUpload.parents('div:first').find('input');
-    App.Modal.render('confirm', {
-        title: 'Eliminar Imagen',
-        description: 'Estás seguro de querer eliminar esta imagen cargada?',
-        onAccept: function() {
-            inputReset.val('');
-            fileUpload.find('.file-upload__content:first').css({'background-image': 'none', 'height': 'auto'}).removeClass('has-image');
-        }
-    });
-    return false;
-});
-
 module.exports   = {
 
     dropZone: '',
@@ -45,9 +30,11 @@ module.exports   = {
     bind: function(element) {
 
         var _this           = this;
-        $(element).not('.file-upload-initialized').each(function() {
+        $(element).not('[data-plugin-loaded]').each(function() {
 
             let $input          = $(this);
+            $input.attr('data-plugin-loaded', true);
+
             if($input.attr('id') === undefined) {
                 $input.attr('id', 'file-upload__input-'+ Date.now());
             };

@@ -12,7 +12,7 @@ var Datepicker  = require('helpers/form/datepicker');
 var Password    = require('helpers/form/password');
 var Timepicker  = require('helpers/form/timepicker');
 var Upload      = require('helpers/form/upload');
-var Switch      = require('helpers/form/switch');
+var Select2     = require('helpers/form/select2');
 
 module.exports   = {
 
@@ -21,8 +21,6 @@ module.exports   = {
      * @param callback cb
      */
     init: function(cb) {
-
-        $(Switch);
 
         $('body').find('input:visible').not('readonly').not('disabled').first().trigger('focus');
 
@@ -45,6 +43,9 @@ module.exports   = {
 
             // Bind Upload
             Upload.init('[type="file"]');
+
+            // Bind Selcet2
+            Select2.init('[data-select]');
 
             // Callback
             if(cb) {

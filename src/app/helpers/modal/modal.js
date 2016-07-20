@@ -7,7 +7,8 @@ var templateBasic       = _.template(require('./templates/basic.html'));
 var templateConfirm     = _.template(require('./templates/confirm.html'));
 var templateDate        = _.template(require('./templates/filter-date.html'));
 
-var Form                = require('helpers/form/form');
+var BindForm            = require('helpers/form/bind');
+var Zurb                = require('libs/zurb/Zurb');
 
 module.exports = {
 
@@ -48,6 +49,9 @@ module.exports = {
             case 'basic':
                 $el = $(templateBasic(attrs));
                 break;
+            case 'alert':
+                $el = $(templateBasic(attrs));
+                break;
             case 'date':
                 $el = $(templateDate(attrs));
                 break;
@@ -58,27 +62,42 @@ module.exports = {
 
         $($el).appendTo('body');
 
+        $('form[data-abide]').attr('novalidate', 'novalidate');
+
         $el.foundation();
+
+        BindForm.init();
 
         if (attrs.onAccept) {
             $el.find('.btn-confirm').on('click', attrs.onAccept);
         }
+
         if (attrs.onCancel) {
             $el.find('.btn-cancel').on('click', attrs.onCancel);
         }
+
         if (attrs.onSubmit) {
-            $('body').on('submit', $el.find('form:first'), function(e) {
+            $el.on('submit', function(e) {
                 e.preventDefault();
-                attrs.onSubmit();
+                attrs.onSubmit($(this));
                 return false;
             });
         }
 
-        $el.foundation('open');
+        setTimeout(function() {
+
+            $el.foundation('open');
+            Zurb.reflow();
+
+        }, 50);
 
         $el.on('closed.zf.reveal', function(e) {
 
-            $el.remove();
+            $el.off().remove();
+
+        });
+
+        $el.on('open.zf.reveal', function(e) {
 
         });
 
