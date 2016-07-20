@@ -82,6 +82,8 @@ PATHS:
         - "bower_components/blueimp-file-upload/js/jquery.fileupload-process.js"
         - "bower_components/blueimp-file-upload/js/jquery.fileupload-image.js"
         - "bower_components/teamdf/jquery-number/jquery.number.min.js"
+        - "bower_components/select2/dist/js/select2.min.js"
+        - "bower_components/select2/dist/js/i18n/es.js"
 
     # Paths to JavaScript application into one file
     javascript:
