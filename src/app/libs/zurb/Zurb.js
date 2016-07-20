@@ -28,8 +28,13 @@ module.exports  = {
 
     reflow: function() {
 
-        // Foundation.reInit() ?
-        Foundation.reflow();
+        const _this = this;
+        try {
+            Foundation.reInit();
+            setTimeout(function() {
+                _this.init();
+            }, 1000);
+        } catch(e) {}
 
     },
 
