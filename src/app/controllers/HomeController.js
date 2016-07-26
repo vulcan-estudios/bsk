@@ -28,7 +28,7 @@ module.exports = {
     // List all elements
     list: function() {
 
-        App.Model.Example.set({id: 000, name: 'Model'});
+        App.Model.Example.set({id: 1, name: 'Model'});
 
         App.Model.Example.setCollection([
             {id: 123, name: 'A'},
