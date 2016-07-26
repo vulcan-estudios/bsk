@@ -24,6 +24,7 @@
     "jquery-sticky": "^1.0.3",
     "blueimp-file-upload": "^9.12.5",
     "select2": "^4.0.3",
-    "teamdf/jquery-number": "jquery-number#^2.1.6"
+    "underscore.string": "^3.3.4",
+    "jquery-number": "~2.1.6"
   }
 }

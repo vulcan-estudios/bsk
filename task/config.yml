@@ -84,6 +84,7 @@ PATHS:
         - "bower_components/teamdf/jquery-number/jquery.number.min.js"
         - "bower_components/select2/dist/js/select2.min.js"
         - "bower_components/select2/dist/js/i18n/es.js"
+        - "bower_components/underscore.string/dist/underscore.string.min.js"
 
     # Paths to JavaScript application into one file
     javascript:
