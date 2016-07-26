@@ -69,7 +69,10 @@ module.exports = {
         BindForm.init();
 
         if (attrs.onAccept) {
-            $el.find('.btn-confirm').on('click', attrs.onAccept);
+            $el.find('.btn-confirm').on('click', function(e) {
+                e.preventDefault();
+                attrs.onAccept($el);
+            });
         }
 
         if (attrs.onCancel) {
@@ -79,7 +82,7 @@ module.exports = {
         if (attrs.onSubmit) {
             $el.on('submit', function(e) {
                 e.preventDefault();
-                attrs.onSubmit($(this));
+                attrs.onSubmit($(this), $el);
                 return false;
             });
         }
@@ -98,7 +101,9 @@ module.exports = {
         });
 
         $el.on('open.zf.reveal', function(e) {
-
+            if(attrs.onRender) {
+                attrs.onRender($el);
+            }
         });
 
         return $el;
