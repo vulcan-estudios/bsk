@@ -5212,20 +5212,22 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],3:[function(require,module,exports){
+'use strict';
+
 // Underscore
 require('./libs/underscore/settings')();
 
 // BSK Start
-var Application     = require('./bsk/App');
-var Loader          = require('./bsk/AppLoader');
+var Application = require('./bsk/App');
+var Loader = require('./bsk/AppLoader');
 
 // jQuery Events
-var events          = require('helpers/events/events');
+var events = require('helpers/events/events');
 
 // Custom bootstrap
-var Bootstrap       = require('./bootstrap');
+var Bootstrap = require('./bootstrap');
 
-$(document).ready(function() {
+$(document).ready(function () {
 
     // jQuery Events
     $(events);
@@ -5234,67 +5236,66 @@ $(document).ready(function() {
     Loader.start();
 
     // Run application
-    window.App  = new Application();
+    window.App = new Application();
 
-    Bootstrap.init(function() {
+    Bootstrap.init(function () {
 
         App.Router.dispatch();
 
         // Hide loader
         Loader.stop();
-
     });
-
 });
 
-},{"./bootstrap":4,"./bsk/App":5,"./bsk/AppLoader":7,"./libs/underscore/settings":46,"helpers/events/events":18}],4:[function(require,module,exports){
+},{"./bootstrap":4,"./bsk/App":5,"./bsk/AppLoader":7,"./libs/underscore/settings":48,"helpers/events/events":19}],4:[function(require,module,exports){
+'use strict';
+
 // Load config parameters
-const async     = require('async');
+var async = require('async');
 
-module.exports  = {
+module.exports = {
 
-    init: function(cb) {
+    init: function init(cb) {
 
         async.parallel([
 
-            // Load custom models
-            function(callback) {
-                callback();
-            }
-
-        ], cb);
-
+        // Load custom models
+        function (callback) {
+            callback();
+        }], cb);
     }
 
 };
 
 },{"async":1}],5:[function(require,module,exports){
+'use strict';
+
 /**
  * App Bootstrap
  *
  * @type type
  */
-var Config          = require('../config/config');
-var AppRouter       = require('./AppRouter');
-var AppView         = require('./AppView');
-var AppModel        = require('./AppModel');
+var Config = require('../config/config');
+var AppRouter = require('./AppRouter');
+var AppView = require('./AppView');
+var AppModel = require('./AppModel');
 
 // Helpers
-var Flash           = require('helpers/flash/flash');
-var Form            = require('helpers/form/form');
+var Flash = require('helpers/flash/flash');
+var Form = require('helpers/form/form');
 
 // Modals
-var Modal           = require('helpers/modal/modal');
+var Modal = require('helpers/modal/modal');
 
 // Libs
-var Filter          = require('libs/filter/Filter');
-var Api             = require('libs/Api');
+var Filter = require('libs/filter/Filter');
+var Api = require('libs/Api');
 
-module.exports = function() {
+module.exports = function () {
 
-    var Router      = Backbone.Router.extend(AppRouter);
+    var Router = Backbone.Router.extend(AppRouter);
 
-    var App         =  {
+    var App = {
 
         Config: Config,
 
@@ -5317,9 +5318,11 @@ module.exports = function() {
     };
 
     return App;
-
 };
-},{"../config/config":11,"./AppModel":8,"./AppRouter":9,"./AppView":10,"helpers/flash/flash":21,"helpers/form/form":27,"helpers/modal/modal":34,"libs/Api":38,"libs/filter/Filter":39}],6:[function(require,module,exports){
+
+},{"../config/config":11,"./AppModel":8,"./AppRouter":9,"./AppView":10,"helpers/flash/flash":23,"helpers/form/form":29,"helpers/modal/modal":36,"libs/Api":40,"libs/filter/Filter":41}],6:[function(require,module,exports){
+'use strict';
+
 /**
  * App Configuration
  *
@@ -5332,75 +5335,103 @@ module.exports = {
     module: 'Dashboard',
 
     // Callback before execute any controller
-    initialize: function() {
-
-    }
+    initialize: function initialize() {}
 
 };
+
 },{}],7:[function(require,module,exports){
+"use strict";
 
 module.exports = {
 
-    start: function() {
+    start: function start() {},
 
-    },
-
-    stop: function() {
-
-    }
+    stop: function stop() {}
 
 };
+
 },{}],8:[function(require,module,exports){
+"use strict";
+
 /**
  * App Model
  *
  * @type type
  */
 
-var Models  = ({"models":({"Example":require("../models/Example.js")})}).models;
+var TmpFolders = { "models": { "Example": require("../models/Example.js") } }.models || {};
+var Models = { "models": { "Example": require("../models/Example.js") } }.models || {};
 
-module.exports  = function() {
+// Put only folders with objects
+var Folders = {};
+for (var i in TmpFolders) {
+    if (Models[i] === undefined) {
+        Folders[i] = TmpFolders[i];
+    }
+}
 
-    var objs    = {};
+module.exports = function () {
 
-    _(Models).each(function(model, key) {
+    var objs = {};
 
-        var tmpModel            = Backbone.Model.extend(_({}).extend(model, {
+    var toBackboneModel = function toBackboneModel(model, key, folder) {
+
+        var tmpModel = Backbone.Model.extend(_({}).extend(model, {
 
             objCollection: null,
 
-            setCollection: function(data) {
-                var _this       = this;
-                tmpCollection   = Backbone.Collection.extend({
-                    model: Backbone.Model.extend(model)
+            setCollection: function setCollection(data) {
+                var _this = this;
+                var tmpCollection = Backbone.Collection.extend({
+                    model: !folder ? Backbone.Model.extend(model) : Backbone.Model.extend(folder[key])
                 });
                 _this.objCollection = new tmpCollection(data);
                 return true;
             },
 
-            toCollection: function() {
+            toCollection: function toCollection() {
                 return this.objCollection;
             }
 
         }));
 
-        objs[key]       = new tmpModel();
+        return new tmpModel();
+    };
 
+    // Each Models
+    _(Models).each(function (model, key) {
+
+        objs[key] = toBackboneModel(model, key);
+    });
+
+    // Each Folders
+    _(Folders).each(function (models, folder) {
+
+        // Set folder
+        objs[folder] = {};
+
+        // Each Models
+        _(models).each(function (model, key) {
+
+            objs[folder][key] = toBackboneModel(model, key, folder);
+        });
     });
 
     return objs;
-
 };
-},{"../models/Example.js":49}],9:[function(require,module,exports){
+
+},{"../models/Example.js":51}],9:[function(require,module,exports){
+'use strict';
+
 /**
  * Router
  *
  * @type type
  */
 
-var Config          = require('../config/config');
-var AppController   = require('./AppController');
-var Controllers     = ({"controllers":({"BrandsController":require("../controllers/BrandsController.js"),"HomeController":require("../controllers/HomeController.js"),"MarketsController":require("../controllers/MarketsController.js"),"notifications":({"UsersController":require("../controllers/notifications/UsersController.js")})})}).controllers;
+var Config = require('../config/config');
+var AppController = require('./AppController');
+var Controllers = { "controllers": { "BrandsController": require("../controllers/BrandsController.js"), "HomeController": require("../controllers/HomeController.js"), "MarketsController": require("../controllers/MarketsController.js"), "notifications": { "UsersController": require("../controllers/notifications/UsersController.js") } } }.controllers;
 
 module.exports = {
 
@@ -5425,12 +5456,10 @@ module.exports = {
     parameters: [],
 
     // Initialize
-    initialize: function() {
-
-    },
+    initialize: function initialize() {},
 
     // Dispacth current url
-    dispatch: function() {
+    dispatch: function dispatch() {
 
         // Bind Controllers Routes into router
         this._bindExternalRoutes();
@@ -5443,7 +5472,6 @@ module.exports = {
             root: Config.ROOT
 
         });
-
     },
 
     /**
@@ -5452,42 +5480,42 @@ module.exports = {
      * notifications/user/:id:      notifications.UserController.get
      *
      */
-    _bindExternalRoutes: function() {
+    _bindExternalRoutes: function _bindExternalRoutes() {
 
-        this.routes     = {};
+        this.routes = {};
 
         // Merge actions for NameController.action or folder.NameController.action
-        var mergeAction = function(name, paths) {
-            var rs      = _.mapObject(paths || {}, function(action) {
+        var mergeAction = function mergeAction(name, paths) {
+            var rs = _.mapObject(paths || {}, function (action) {
 
                 // NameController.action or folder.NameController.action
-                return name +'.'+ action;
+                return name + '.' + action;
             });
             return rs;
         };
 
-        for(name in Controllers) {
-            if(!/controller/i.test(name)) {
-                for(submodule in Controllers[name]) {
+        for (name in Controllers) {
+            if (!/controller/i.test(name)) {
+                var submodule = void 0;
+                for (submodule in Controllers[name]) {
 
-                    var routes      = {};
-                    _.each(Controllers[name][submodule].routes, function(source, url) {
-                        var tmpUrl  = App.Filter.get(url, 'rtrim', '/');
-                        var tmpUrl2 = tmpUrl+'/';
-                        routes[tmpUrl]  = source;
+                    var routes = {};
+                    _.each(Controllers[name][submodule].routes, function (source, url) {
+                        var tmpUrl = App.Filter.get(url, 'rtrim', '/');
+                        var tmpUrl2 = tmpUrl + '/';
+                        routes[tmpUrl] = source;
                         routes[tmpUrl2] = source;
                     });
 
-                    this.routes  = _.extend(this.routes, mergeAction(name +'.'+ submodule, routes));
-
+                    this.routes = _.extend(this.routes, mergeAction(name + '.' + submodule, routes));
                 }
             } else {
 
-                var routes      = {};
-                _.each(Controllers[name].routes, function(source, url) {
-                    var tmpUrl  = App.Filter.get(url, 'rtrim', '/');
-                    var tmpUrl2 = tmpUrl+'/';
-                    routes[tmpUrl]  = source;
+                var routes = {};
+                _.each(Controllers[name].routes, function (source, url) {
+                    var tmpUrl = App.Filter.get(url, 'rtrim', '/');
+                    var tmpUrl2 = tmpUrl + '/';
+                    routes[tmpUrl] = source;
                     routes[tmpUrl2] = source;
                 });
 
@@ -5497,49 +5525,48 @@ module.exports = {
 
         // bind backbone routes
         this._bindRoutes();
-
     },
 
     // Execute
-    execute: function(cb, params, route) {
+    execute: function execute(cb, params, route) {
 
-        var source                  = route.split('.');
+        var source = route.split('.');
 
-        var controllerName          = (source.length > 2) ? source[1] : source[0];
-        var controllerPath          = 'controllers/'+ ( (source.length > 2) ? source[0]+'/'+source[1] : source[0] );
+        var controllerName = source.length > 2 ? source[1] : source[0];
+        var controllerPath = 'controllers/' + (source.length > 2 ? source[0] + '/' + source[1] : source[0]);
 
-        this.module                 = (source.length > 2) ? source[0] : '';
-        this.controller             = controllerName.toLowerCase().replace('controller', '');
-        this.action                 = source.pop();
-        this.parameters             = params;
+        this.module = source.length > 2 ? source[0] : '';
+        this.controller = controllerName.toLowerCase().replace('controller', '');
+        this.action = source.pop();
+        this.parameters = params;
 
-        var filter                  = '_beforeFilter';
+        var filter = '_beforeFilter';
         var tmpController;
 
-        if(this.module) {
-            tmpController           = Controllers[this.module][controllerName] || {};
+        if (this.module) {
+            tmpController = Controllers[this.module][controllerName] || {};
         } else {
-            tmpController           = Controllers[controllerName] || {};
+            tmpController = Controllers[controllerName] || {};
         }
 
         // Check if exist
-        if(!tmpController) {
+        if (!tmpController) {
             console.error('CONTROLLER "', controllerPath, '" NOT FOUND');
             return false;
         }
 
         // Find and exec the controller
-        var BController             = Backbone.Controller.extend(_({}).extend(AppController, tmpController));
+        var BController = Backbone.Controller.extend(_({}).extend(AppController, tmpController));
 
-        var ObjController           = new BController();
+        var ObjController = new BController();
 
-        if(ObjController[filter] && (ObjController[filter]() === false)) {
+        if (ObjController[filter] && ObjController[filter]() === false) {
             console.log('EXIT FROM BEFORE FILTER INTO "', controllerPath, '"');
             return false;
         }
 
         // Run Action
-        if(!ObjController[this.action]) {
+        if (!ObjController[this.action]) {
             console.error('ACTION "', this.action, '" NOT FOUND INTO ', controllerPath);
             return false;
         }
@@ -5547,96 +5574,97 @@ module.exports = {
         // Run method
         ObjController[this.action].apply(ObjController, params);
 
-        $("html, body").animate({scrollTop: 0}, 500);
-
+        $("html, body").animate({ scrollTop: 0 }, 500);
     },
 
     // Redirect to url
-    to: function(target, cb) {
+    to: function to(target, cb) {
 
-        this.navigate(target, {trigger: true});
-        if(cb) {
-            setTimeout(function() {
+        this.navigate(target, { trigger: true });
+        if (cb) {
+            setTimeout(function () {
                 cb();
             }, 200);
         }
-
-    }, 
-    
-    // Redirect internal url (without change the url)
-    internal: function(target, cb) {
-        
-        Backbone.history.loadUrl(target);
-        
-        if(cb) {
-            setTimeout(function() {
-                cb();
-            }, 200);
-        }
-        
     },
-    
+
+    // Redirect internal url (without change the url)
+    internal: function internal(target, cb) {
+
+        Backbone.history.loadUrl(target);
+
+        if (cb) {
+            setTimeout(function () {
+                cb();
+            }, 200);
+        }
+    },
+
     // History back
-    back: function(index) {
-        
+    back: function back(index) {
+
         history.back(index || null);
-        
     }
 
 };
+
 },{"../config/config":11,"../controllers/BrandsController.js":14,"../controllers/HomeController.js":15,"../controllers/MarketsController.js":16,"../controllers/notifications/UsersController.js":17,"./AppController":6}],10:[function(require,module,exports){
+"use strict";
+
 /**
  * App Views
  *
  * @type type
  */
 
-var Views           = ({"views":({"home":(function () {var f = require("../views/home/index.js");f["index"]=require("../views/home/index.js");f["list"]=require("../views/home/list.js");return f;})(),"main":require("../views/main.js"),"notifications":({"users":(function () {var f = require("../views/notifications/users/index.js");f["index"]=require("../views/notifications/users/index.js");return f;})()})})}).views;
-var Partials        = ({"views":({"_shared":({"partials":({"folder":({"test3":require("../views/_shared/partials/folder/test3.html")}),"test1":require("../views/_shared/partials/test1.html"),"test2":require("../views/_shared/partials/test2.html"),"test4":require("../views/_shared/partials/test4.html")})})})}).views._shared.partials || {};
-var Components      = (Views._shared) ? Views._shared.components : {};
+var Views = { "views": { "home": function () {
+            var f = require("../views/home/index.js");f["index"] = require("../views/home/index.js");f["list"] = require("../views/home/list.js");return f;
+        }(), "main": require("../views/main.js"), "notifications": { "users": function () {
+                var f = require("../views/notifications/users/index.js");f["index"] = require("../views/notifications/users/index.js");return f;
+            }() } } }.views;
+var Partials = { "views": { "_shared": { "partials": { "folder": { "test3": require("../views/_shared/partials/folder/test3.html") }, "test1": require("../views/_shared/partials/test1.html"), "test2": require("../views/_shared/partials/test2.html"), "test4": require("../views/_shared/partials/test4.html") } } } }.views._shared.partials || {};
+var Components = Views._shared ? Views._shared.components : {};
 
 module.exports = {
 
     /**
      * Curent View to render
      */
-    currentView:    {},
+    currentView: {},
 
     // Views Loaded to delete zombies
-    viewsLoaded:    [],
+    viewsLoaded: [],
 
     // Current module
-    module:         '',
+    module: '',
 
     // Current controller
-    controller:     '',
+    controller: '',
 
     // Current action
-    action:         '',
-
+    action: '',
 
     /**
      * Method to run current view
      * @param {type} data
      * @returns {undefined|nm$_AppView.module.exports.Run.Main}
      */
-    Run: function() {
+    Run: function Run() {
 
         // Check SHELL #app
-        if($(App.Config.SHELL_CONTAINER).size() === 0) {
+        if ($(App.Config.SHELL_CONTAINER).size() === 0) {
             console.error("THE SHELL ", App.Config.SHELL_CONTAINER, " COULD NOT BE FOUND INTO THE DOCUMENT. PLEASE CHECK YOUT CONFIG FILE");
             return;
         }
 
         var config = {
-            el:     $(App.Config.SHELL_CONTAINER).attr('data-controller', this.controller).attr('data-action', this.action),
-            view:   this.currentView
+            el: $(App.Config.SHELL_CONTAINER).attr('data-controller', this.controller).attr('data-action', this.action),
+            view: this.currentView
         };
 
         $('body').attr('data-module', this.module);
-        var Main    = Backbone.View.extend(_.extend(config, Views.main));
+        var Main = Backbone.View.extend(_.extend(config, Views.main));
         return new Main();
-
     },
 
     /**
@@ -5644,89 +5672,89 @@ module.exports = {
      * @param {type} data
      * @returns {nm$_AppView.module.exports.Run.Main|undefined}
      */
-    Render: function() {
+    Render: function Render() {
 
-        var params      = arguments;
-        var data        = {};
+        var params = arguments;
+        var data = {};
 
-        var _this       = this;
+        var _this = this;
 
-        _this.module        = App.Router.module;
+        _this.module = App.Router.module;
 
-        _this.controller    = App.Router.controller;
+        _this.controller = App.Router.controller;
 
-        _this.action        = App.Router.action;
+        _this.action = App.Router.action;
 
-        if(typeof params[0] === 'string') {
-            data        = params[1] ? params[1] : {};
-            tmpPath     = App.Filter.get(params[0], 'trim', '/').split('/');
-            if(tmpPath.length > 2) {
-                _this.module        = tmpPath[0];
-                _this.controller    = tmpPath[1];
-                _this.action        = tmpPath[2];
+        if (typeof params[0] === 'string') {
+            data = params[1] ? params[1] : {};
+            tmpPath = App.Filter.get(params[0], 'trim', '/').split('/');
+            if (tmpPath.length > 2) {
+                _this.module = tmpPath[0];
+                _this.controller = tmpPath[1];
+                _this.action = tmpPath[2];
             } else {
-                _this.module        = null;
-                _this.controller    = tmpPath[0];
-                _this.action        = tmpPath[1];
+                _this.module = null;
+                _this.controller = tmpPath[0];
+                _this.action = tmpPath[1];
             }
         } else {
-            data        = params[0];
+            data = params[0];
         }
 
         // Get Path
-        var path        = (_this.module)  ? _this.module +'/'+ _this.controller +'/'+ _this.action : _this.controller +'/'+ _this.action;
+        var path = _this.module ? _this.module + '/' + _this.controller + '/' + _this.action : _this.controller + '/' + _this.action;
 
         try {
             // View to render
-            var toRender    = (_this.module) ? Views[_this.module][_this.controller][_this.action] : Views[_this.controller][_this.action];
-            if(!toRender) {
+            var toRender = _this.module ? Views[_this.module][_this.controller][_this.action] : Views[_this.controller][_this.action];
+            if (!toRender) {
                 throw "View not found";
             }
-        } catch(e) {
-            console.error('VIEW "'+_this.action+'" NOT FOUND INTO "views/'+ path +'"');
+        } catch (e) {
+            console.error('VIEW "' + _this.action + '" NOT FOUND INTO "views/' + path + '"');
             return;
         }
 
-        toRender.viewsLoaded        = [];
+        toRender.viewsLoaded = [];
 
-        if(!toRender['initialize']) {
-            toRender.initialize = function() {
+        if (!toRender['initialize']) {
+            toRender.initialize = function () {
                 this.render();
                 return this;
             };
         }
 
-        toRender.html           = function(html) {
+        toRender.html = function (html) {
             this.clean();
             this.$el.html(html);
-            if(toRender.events) {
+            if (toRender.events) {
                 this.delegateEvents();
             }
         };
 
-        toRender.append         = function(html, selector) {
-            if(typeof html === 'string') {
-                (selector) ? this.$el.find(selector).append(html) : this.$el.append(html);
+        toRender.append = function (html, selector) {
+            if (typeof html === 'string') {
+                selector ? this.$el.find(selector).append(html) : this.$el.append(html);
             } else {
                 this.viewsLoaded.push(html);
-                (selector) ? this.$el.find(selector).append(html.el) : this.$el.append(html.el);
+                selector ? this.$el.find(selector).append(html.el) : this.$el.append(html.el);
             }
         };
 
-        toRender.prepend        = function(html, selector) {
-            if(typeof html === 'string') {
-                (selector) ? this.$el.find(selector).prepend(html) : this.$el.prepend(html);
+        toRender.prepend = function (html, selector) {
+            if (typeof html === 'string') {
+                selector ? this.$el.find(selector).prepend(html) : this.$el.prepend(html);
             } else {
                 this.viewsLoaded.push(html);
-                (selector) ? this.$el.find(selector).prepend(html.el) : this.$el.prepend(html.el);
+                selector ? this.$el.find(selector).prepend(html.el) : this.$el.prepend(html.el);
             }
         };
 
         // Clean view
-        toRender.clean      = function() {
+        toRender.clean = function () {
 
             // Remove all views loaded previously
-            this.viewsLoaded.forEach(function(view) {
+            this.viewsLoaded.forEach(function (view) {
                 view.remove();
             });
 
@@ -5734,20 +5762,18 @@ module.exports = {
             this.undelegateEvents();
             this.$el.removeData().unbind();
             this.$el.empty();
-
         };
 
-        var config          = {
+        var config = {
             tagName: 'main',
             className: 'small-11 small-centered large-12',
-            data: data
+            data: data || {}
         };
 
-        var View            = Backbone.View.extend(_.extend(config, toRender));
-        this.currentView    = new View();
+        var View = Backbone.View.extend(_.extend(config, toRender));
+        this.currentView = new View();
 
         return _this.Run();
-
     },
 
     /**
@@ -5755,44 +5781,43 @@ module.exports = {
      * @param {type} name
      * @returns {undefined|nm$_AppView.module.exports.Component.Component}
      */
-    Component: function(name, data) {
+    Component: function Component(name, data) {
 
         // Get Folder - Component
-        var toAppendFolder  = Components[name];
+        var toAppendFolder = Components[name];
 
         // Get Component
-        var toAppend        = !toAppendFolder ? null : toAppendFolder[name];
-        if(!toAppend) {
-            console.error('COMPONENT "'+name+'" NOT FOUND INTO "views/_shared/components/" TO APPEND INTO MAIN VIEW');
+        var toAppend = !toAppendFolder ? null : toAppendFolder[name];
+        if (!toAppend) {
+            console.error('COMPONENT "' + name + '" NOT FOUND INTO "views/_shared/components/" TO APPEND INTO MAIN VIEW');
             return;
         }
 
-        if(!toAppend['initialize']) {
-            toAppend.initialize = function() {
+        if (!toAppend['initialize']) {
+            toAppend.initialize = function () {
                 this.render();
                 return this;
             };
         }
 
-        toAppend.html           = function(html) {
+        toAppend.html = function (html) {
             this.$el.html(html);
         };
 
-        toAppend.append         = function(html) {
+        toAppend.append = function (html) {
             this.$el.append(html);
         };
 
-        toAppend.prepend        = function(html) {
+        toAppend.prepend = function (html) {
             this.$el.prepend(html);
         };
 
-        var config      = {
-            data:       data
+        var config = {
+            data: data
         };
 
-        var Component   = Backbone.View.extend(_.extend(config, toAppend));
+        var Component = Backbone.View.extend(_.extend(config, toAppend));
         return new Component();
-
     },
 
     /**
@@ -5802,28 +5827,30 @@ module.exports = {
      * @param {type} data
      * @returns {Boolean}
      */
-    Partial: function(partial, data) {
+    Partial: function Partial(partial, data) {
 
-        var tmpFolder   = partial.split('/');
-        var hasFolder   = tmpFolder.length > 1 ? true : false;
+        var tmpFolder = partial.split('/');
+        var hasFolder = tmpFolder.length > 1 ? true : false;
 
-        if(hasFolder) {
-            var html    = tmpFolder[1];
-            var folder  = tmpFolder[0];
-            partial     = Partials[folder][html];
+        if (hasFolder) {
+            var html = tmpFolder[1];
+            var folder = tmpFolder[0];
+            partial = Partials[folder][html];
         } else {
-            partial     = Partials[partial];
+            partial = Partials[partial];
         }
-        if(!partial) {
+        if (!partial) {
             console.error("PARTIAL", partial, "NOT FOUND INTO views/_shared/partials");
             return false;
         }
         return _.template(partial)(data);
-
     }
 
 };
-},{"../views/_shared/partials/folder/test3.html":50,"../views/_shared/partials/test1.html":51,"../views/_shared/partials/test2.html":52,"../views/_shared/partials/test4.html":53,"../views/home/index.js":54,"../views/home/list.js":55,"../views/main.js":58,"../views/notifications/users/index.js":59}],11:[function(require,module,exports){
+
+},{"../views/_shared/partials/folder/test3.html":52,"../views/_shared/partials/test1.html":53,"../views/_shared/partials/test2.html":54,"../views/_shared/partials/test4.html":55,"../views/home/index.js":56,"../views/home/list.js":57,"../views/main.js":60,"../views/notifications/users/index.js":61}],11:[function(require,module,exports){
+'use strict';
+
 /**
  * App Configuration
  *
@@ -5832,51 +5859,54 @@ module.exports = {
 
 var connections = require('./connections');
 
-var local       = require('./local') || {};
+var local = require('./local') || {};
 
 module.exports = {
 
-    /**
-     * APP VERSION
-     */
-    VERSION: '1.0',
+  /**
+   * APP VERSION
+   */
+  VERSION: '1.0',
 
-    /**
-     * ID OF ELEMENT TO APPEND APP HMTL
-     */
-    SHELL_CONTAINER: '#app',
+  /**
+   * ID OF ELEMENT TO APPEND APP HMTL
+   */
+  SHELL_CONTAINER: '#app',
 
-    /**
-     * LOCAL STORAGE
-     */
-    BROWSER_STORAGE: '001',
+  /**
+   * LOCAL STORAGE
+   */
+  BROWSER_STORAGE: '001',
 
-    /**
-     * ENABLE PUSHSTATE
-     */
-    PUSHSTATE: false,
+  /**
+   * ENABLE PUSHSTATE
+   */
+  PUSHSTATE: false,
 
-    /**
-     * ROOT PATH FOR HISTORY AND PUSHSTATE
-     */
-    ROOT: '/',
+  /**
+   * ROOT PATH FOR HISTORY AND PUSHSTATE
+   */
+  ROOT: '/',
 
-    /**
-     * API SERVER
-     */
-    SERVER: connections[ local.connection || 'production'],
+  /**
+   * API SERVER
+   */
+  SERVER: connections[local.connection || 'production'],
 
-    /**
-     * TEMPLATE SETTINGS
-     */
-    TEMPLATE_SETTINGS: {
-        evaluate    : /{{([\s\S]+?)}}/g,
-        interpolate : /{{=([\s\S]+?)}}/g,
-        escape      : /{{-([\s\S]+?)}}/g
-    }
+  /**
+   * TEMPLATE SETTINGS
+   */
+  TEMPLATE_SETTINGS: {
+    evaluate: /{{([\s\S]+?)}}/g,
+    interpolate: /{{=([\s\S]+?)}}/g,
+    escape: /{{-([\s\S]+?)}}/g
+  }
 
 };
+
 },{"./connections":12,"./local":13}],12:[function(require,module,exports){
+'use strict';
+
 /**
  * All Connections
  *
@@ -5888,29 +5918,28 @@ module.exports = {
     development: {
 
         // API
-        host:  'http://dev.com/v1/',
+        host: 'http://dev.com/v1/',
 
         // Custom header to send into request
-        headers: {
-
-        }
+        headers: {}
 
     },
 
     production: {
 
         // API
-        host:  'http://prod.com/v1/',
+        host: 'http://prod.com/v1/',
 
         // Custom header to send into request
-        headers: {
-
-        }
+        headers: {}
 
     }
 
 };
+
 },{}],13:[function(require,module,exports){
+'use strict';
+
 /**
  * Local environment settings
  *
@@ -5920,81 +5949,77 @@ module.exports = {
 
 module.exports = {
 
-    connection: 'development'
+  connection: 'development'
 
 };
+
 },{}],14:[function(require,module,exports){
+'use strict';
+
 /**
  * BrandsController
  *
  * @description
  */
 
-
 module.exports = {
 
     routes: {
 
-        'brands':                 'index',
-        'brands/get/:id':         'get',
-        'brands/list':            'list'
+        'brands': 'index',
+        'brands/get/:id': 'get',
+        'brands/list': 'list'
 
     },
 
     // Callback before to run
-    _beforeFilter: function() {
+    _beforeFilter: function _beforeFilter() {
 
         console.log('before Filter Brands');
-
     },
 
     // List all elements
-    list: function() {
+    list: function list() {
 
         console.log('Entró a listar Brands');
-
     }
 
 };
+
 },{}],15:[function(require,module,exports){
+'use strict';
+
 /**
  * HomeController
  *
  * @description
  */
 
-
 module.exports = {
 
     // Internal Routes
     routes: {
 
-        'home':                 'index',
-        'home/get/:id':         'get',
-        'home/list':            'list',
-        'home/redirect':        'redirect'
+        'home': 'index',
+        'home/get/:id': 'get',
+        'home/list': 'list',
+        'home/redirect': 'redirect'
 
     },
 
     // Home
-    index: function() {
+    index: function index() {
 
         console.log(App.Model.Example.get('id'));
         App.View.Render();
-
     },
 
     // List all elements
-    list: function() {
+    list: function list() {
 
-        App.Model.Example.set({id: 000, name: 'Model'});
+        App.Model.Example.set({ id: 1, name: 'Model' });
 
-        App.Model.Example.setCollection([
-            {id: 123, name: 'A'},
-            {id: 456, name: 'B'},
-            {id: 789, name: 'C'},
-            App.Model.Example
-        ]);
+        App.Model.Example.setCollection([{ id: 123, name: 'A' }, { id: 456, name: 'B' }, { id: 789, name: 'C' }, App.Model.Example]);
 
         App.Model.Example.toCollection().each(function (model, index, all) {
             console.log(model.get("name"));
@@ -6003,9 +6028,9 @@ module.exports = {
             // C
         });
 
-        App.Model.Example.on("change:id", function(model){
+        App.Model.Example.on("change:id", function (model) {
             var id = model.get("id");
-            console.log("Changed my id to " + id );
+            console.log("Changed my id to " + id);
         });
 
         App.Model.Example.set('id', 123);
@@ -6013,139 +6038,178 @@ module.exports = {
         console.log(App.Model.Example.get('id'));
 
         App.View.Render({ data: App.Model.Example.getElements() });
-
     },
 
     // Get with Param
-    get: function(id) {
+    get: function get(id) {
 
         console.log('Entró al get del Home: ', id);
-
     },
 
     // Redirect to other url
-    redirect: function() {
+    redirect: function redirect() {
 
-        App.Router.to('home/list', function() {
+        App.Router.to('home/list', function () {
             App.Flash.valid('Redirect');
         });
-
     }
 
 };
+
 },{}],16:[function(require,module,exports){
+'use strict';
+
 /**
  * MarketsController
  *
  * @description
  */
 
-
 module.exports = {
 
     routes: {
 
-        'markets':                 'index',
-        'markets/get/:id':         'get',
-        'markets/list':            'list'
+        'markets': 'index',
+        'markets/get/:id': 'get',
+        'markets/list': 'list'
 
     },
 
     // Callback before run
-    _beforeFilter: function() {
+    _beforeFilter: function _beforeFilter() {
 
         console.log('before Filter Markets');
-
     },
 
     // List all elements
-    list: function() {
+    list: function list() {
 
         console.log('Entró a listar Markets');
-
     }
 
 };
+
 },{}],17:[function(require,module,exports){
+'use strict';
+
 /**
  * UsersController
  *
  * @description
  */
 
-
 module.exports = {
 
     routes: {
 
-        'notification/users':                 'index',
-        'notification/users/get/:id':         'get',
-        'notification/users/list':            'list',
-        'notification/users/test/:id':         'test'
+        'notification/users': 'index',
+        'notification/users/get/:id': 'get',
+        'notification/users/list': 'list',
+        'notification/users/test/:id': 'test'
 
     },
 
     // Callback before to run
-    _beforeFilter: function() {
+    _beforeFilter: function _beforeFilter() {
 
         console.log('before Filter Users');
-
     },
 
     // Index
-    index: function() {
+    index: function index() {
 
         console.log('Entró a index Users');
 
         App.View.Render();
-
     },
 
     // List all elements
-    list: function() {
+    list: function list() {
 
         console.log('Entró a listar Users');
-
     },
 
     // Get with PAram
-    get: function(param) {
+    get: function get(param) {
 
         console.log('Entró al get del Users: ', param);
-
     },
 
-    'test:form': function(param) {
+    'test:form': function testForm(param) {
 
         console.log('dispara el test form');
-
     }
 
 };
+
 },{}],18:[function(require,module,exports){
+'use strict';
+
+/**
+ *
+ * Siwtch
+ *
+ */
+
+module.exports = function () {
+
+    // Disable Siwtch Elements
+    $('body').on('change', '.md-switch__container [type="checkbox"]', function (e) {
+
+        var este = $(this);
+        var container = este.parents('.md-switch__container:first');
+
+        if (!este.is(':checked')) {
+            container.find(':input').not(':checkbox').attr('disabled', 'disabled');
+
+            // Only if has class md-switch__display
+            container.find('.md-switch__display').fadeOut().addClass('hide');
+        } else {
+            container.find(':input').not(':checkbox').removeAttr('disabled');
+
+            // Only if has class md-switch__display
+            container.find('.md-switch__display').fadeIn().removeClass('hide');
+
+            setTimeout(function () {
+                container.find(':input').not(':checkbox').first().trigger('focus');
+            }, 100);
+        }
+    });
+};
+
+},{}],19:[function(require,module,exports){
+'use strict';
+
 /**
  * PUSHSTATE
  *
  */
 
-const pushstate = require('./pushstate/pushstate');
-const backspace = require('./keypress/backspace');
+var pushstate = require('./pushstate/pushstate');
+var backspace = require('./keypress/backspace');
+var switcher = require('./checkbox/switch');
+var upload = require('./upload/image');
 
-module.exports = function() {
+module.exports = function () {
 
     $(backspace);
 
     $(pushstate);
 
+    $(switcher);
+
+    $(upload);
 };
 
-},{"./keypress/backspace":19,"./pushstate/pushstate":20}],19:[function(require,module,exports){
+},{"./checkbox/switch":18,"./keypress/backspace":20,"./pushstate/pushstate":21,"./upload/image":22}],20:[function(require,module,exports){
+"use strict";
+
 /**
  * Keydown
  *
  */
 
-module.exports = function() {
+module.exports = function () {
 
     /*
      * this swallows backspace keys on any non-input element.
@@ -6153,45 +6217,44 @@ module.exports = function() {
      */
     var rx = /INPUT|SELECT|TEXTAREA/i;
 
-    $('body').bind("keydown keypress", function(e) {
+    $('body').bind("keydown keypress", function (e) {
 
         var key = e.keyCode || e.which;
 
-        if( key == 8) { // 8 == backspace or ENTER
-            if(!rx.test(e.target.tagName) || e.target.disabled || e.target.readOnly ){
+        if (key == 8) {
+            // 8 == backspace or ENTER
+            if (!rx.test(e.target.tagName) || e.target.disabled || e.target.readOnly) {
                 e.preventDefault();
             }
-        } else if(key == 13) {
-            
-        }
-
+        } else if (key == 13) {}
     });
-
 };
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
+'use strict';
+
 /**
  * PUSHSTATE
  *
  */
 
-module.exports = function() {
+module.exports = function () {
 
     // Pushstate
-    $('body').on('click', 'a[data-pushstate]', function(e) {
+    $('body').on('click', 'a[data-pushstate]', function (e) {
         e.preventDefault();
-        var target  = $(this).attr('href').replace('#', '/');
+        var target = $(this).attr('href').replace('#', '/');
         App.Router.to(target);
     });
 
     // History Back
-    $('body').on('click', '[data-back]', function(e) {
+    $('body').on('click', '[data-back]', function (e) {
 
         var rx = /INPUT|SELECT|TEXTAREA/i;
 
-        if(e.originalEvent && e.originalEvent.explicitOriginalTarget) {
-            var originalTarget  = e.originalEvent.explicitOriginalTarget;
-            if(rx.test(originalTarget)){
+        if (e.originalEvent && e.originalEvent.explicitOriginalTarget) {
+            var originalTarget = e.originalEvent.explicitOriginalTarget;
+            if (rx.test(originalTarget)) {
                 e.preventDefault();
                 return false;
             }
@@ -6199,12 +6262,33 @@ module.exports = function() {
 
         e.preventDefault();
         App.Router.back();
-        
     });
-
 };
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
+'use strict';
+
+module.exports = function () {
+
+    $('body').on('click', '.file_upload__placeholder__delete', function (e) {
+        e.preventDefault();
+        var fileUpload = $(this).parents('.file-upload');
+        var inputReset = fileUpload.parents('div:first').find('input');
+        App.Modal.render('confirm', {
+            title: 'Eliminar Imagen',
+            description: 'Estás seguro de querer eliminar esta imagen cargada?',
+            onAccept: function onAccept() {
+                inputReset.val('');
+                fileUpload.find('.file-upload__content:first').css({ 'background-image': 'none', 'height': 'auto' }).removeClass('has-image');
+            }
+        });
+        return false;
+    });
+};
+
+},{}],23:[function(require,module,exports){
+'use strict';
+
 /**
  *
  * Helper Flash
@@ -6215,19 +6299,19 @@ module.exports = function() {
  *
  */
 
-var template    = require('./templates/default.html');
+var template = require('./templates/default.html');
 
-module.exports  = {
+module.exports = {
 
     target: '.flash-message',
 
     /**
      * Initialize
      */
-    init: function(element) {
-        this.target  = (element) || '.flash-message';
-        if($(this.target+':first').size() < 1) {
-            $('body').append('<div class="row"><div class="small-11 medium-9 small-centered columns"><div class="'+ this.target.replace('.', '') +'"></div></div></div>');
+    init: function init(element) {
+        this.target = element || '.flash-message';
+        if ($(this.target + ':first').size() < 1) {
+            $('body').append('<div class="row"><div class="small-11 medium-9 small-centered columns"><div class="' + this.target.replace('.', '') + '"></div></div></div>');
         }
         this.buffer();
         this.bind();
@@ -6237,8 +6321,8 @@ module.exports  = {
     /**
      * Bind Event
      */
-    bind: function() {
-        $('body').on('click', '.alert-box .close', function(e) {
+    bind: function bind() {
+        $('body').on('click', '.alert-box .close', function (e) {
             e.preventDefault();
             $(this).parents('.alert-box:first').hide();
         });
@@ -6250,7 +6334,7 @@ module.exports  = {
      * @param String msg
      * @param Mixing cb
      */
-    valid: function(msg, cb) {
+    valid: function valid(msg, cb) {
         this.display('valid', msg, cb);
     },
 
@@ -6260,7 +6344,7 @@ module.exports  = {
      * @param String msg
      * @param Mixing cb
      */
-    info: function(msg, cb) {
+    info: function info(msg, cb) {
         this.display('info', msg, cb);
     },
 
@@ -6270,7 +6354,7 @@ module.exports  = {
      * @param String msg
      * @param Mixing cb
      */
-    warning: function(msg, cb) {
+    warning: function warning(msg, cb) {
         this.display('warning', msg, cb);
     },
 
@@ -6280,7 +6364,7 @@ module.exports  = {
      * @param String msg
      * @param Mixing cb
      */
-    error: function(msg, cb) {
+    error: function error(msg, cb) {
         this.display('alert', msg, cb);
     },
 
@@ -6290,77 +6374,79 @@ module.exports  = {
      * @param String msg
      * @param Mixing cb
      */
-    display: function (type, msg, cb) {
-        var data    = {
-            id:     Math.floor(Math.random()*11),
-            type:   type,
-            text:   msg,
-            delay:  7000
+    display: function display(type, msg, cb) {
+        var data = {
+            id: Math.floor(Math.random() * 11),
+            type: type,
+            text: msg,
+            delay: 7000
         };
-        if(cb!==undefined) {
+        if (cb !== undefined) {
             if (typeof cb === "function") {
-                $.cookie('flash-message', _.template(template)({msg: data}), { path: '/' });
-                setTimeout(function() { cb(); }, 100);
+                $.cookie('flash-message', _.template(template)({ msg: data }), { path: '/' });
+                setTimeout(function () {
+                    cb();
+                }, 100);
                 return;
-            } else if(parseInt(cb) > 0) {
-                data.delay  = cb;
+            } else if (parseInt(cb) > 0) {
+                data.delay = cb;
             }
         }
         this.clear();
-        $(this.target+':first').append(_.template(template)({msg: data}));
+        $(this.target + ':first').append(_.template(template)({ msg: data }));
     },
 
     /**
      * Clear all flash
      */
-    clear: function() {
+    clear: function clear() {
         $(this.target).empty();
     },
 
     /**
      * Show Buffer Message
      */
-    buffer: function() {
-        if($.cookie('flash-message')) {
-            $(this.target+':first').append($.cookie('flash-message'));
+    buffer: function buffer() {
+        if ($.cookie('flash-message')) {
+            $(this.target + ':first').append($.cookie('flash-message'));
             $.removeCookie('flash-message', { path: '/' });
         }
     }
 
 };
-},{"./templates/default.html":22}],22:[function(require,module,exports){
+
+},{"./templates/default.html":24}],24:[function(require,module,exports){
 module.exports = "<div id=\"alert-id-{{= msg.id }}\" data-alert class=\"alert-box callout radius {{= msg.type }}\">\n    <a href=\"#\" class=\"close\">&times;</a>\n    <i class=\"mdi mdi-alert-box\"></i>\n    <i class=\"mdi mdi-checkbox-market\"></i>\n    <i class=\"mdi mdi-close-octagon\"></i>\n    <i class=\"mdi mdi-bell\"></i>\n    {{= msg.text }}\n</div>\n<script type=\"text/javascript\">$(\"#alert-id-{{= msg.id }}\").delay('{{= msg.delay }}').fadeOut(500);</script>";
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
+'use strict';
+
 /**
  *
  * Form
  *
  */
 
-
 // Components
-var Counter     = require('helpers/form/counter');
-var Currency    = require('helpers/form/currency');
-var Datepicker  = require('helpers/form/datepicker');
-var Password    = require('helpers/form/password');
-var Timepicker  = require('helpers/form/timepicker');
-var Upload      = require('helpers/form/upload');
-var Switch      = require('helpers/form/switch');
+var Counter = require('helpers/form/counter');
+var Currency = require('helpers/form/currency');
+var Datepicker = require('helpers/form/datepicker');
+var Password = require('helpers/form/password');
+var Timepicker = require('helpers/form/timepicker');
+var Upload = require('helpers/form/upload');
+var Select2 = require('helpers/form/select2');
 
-module.exports   = {
+module.exports = {
 
     /**
      * Init form elements with helpers
      * @param callback cb
      */
-    init: function(cb) {
-
-        $(Switch);
+    init: function init(cb) {
 
         $('body').find('input:visible').not('readonly').not('disabled').first().trigger('focus');
 
-        setTimeout(function() {
+        setTimeout(function () {
 
             // Bind Counter
             Counter.init('[data-counter]');
@@ -6380,36 +6466,41 @@ module.exports   = {
             // Bind Upload
             Upload.init('[type="file"]');
 
+            // Bind Selcet2
+            Select2.init('[data-select]');
+
             // Callback
-            if(cb) {
+            if (cb) {
                 cb();
             }
-
         }, 500);
-
     }
 
 };
-},{"helpers/form/counter":24,"helpers/form/currency":25,"helpers/form/datepicker":26,"helpers/form/password":28,"helpers/form/switch":29,"helpers/form/timepicker":32,"helpers/form/upload":33}],24:[function(require,module,exports){
+
+},{"helpers/form/counter":26,"helpers/form/currency":27,"helpers/form/datepicker":28,"helpers/form/password":30,"helpers/form/select2":31,"helpers/form/timepicker":34,"helpers/form/upload":35}],26:[function(require,module,exports){
+"use strict";
+
 /**
  *
  * Counter
  *
  */
 
-module.exports   = {
-    
-    /**
-     * Init
-     *
-     * @param {string} element class or id to make as component
-     */
-    init: function(element) {
+module.exports = {
 
-    }
+  /**
+   * Init
+   *
+   * @param {string} element class or id to make as component
+   */
+  init: function init(element) {}
 
 };
-},{}],25:[function(require,module,exports){
+
+},{}],27:[function(require,module,exports){
+'use strict';
+
 /**
  *
  * Password
@@ -6418,14 +6509,14 @@ module.exports   = {
  *
  */
 
-module.exports   = {
+module.exports = {
 
     /**
      * Init
      *
      * @param {string} element class or id to make as currency
      */
-    init: function(element) {
+    init: function init(element) {
         return this.bind(element);
     },
 
@@ -6433,34 +6524,37 @@ module.exports   = {
      * Bind element class or id to currency
      * @param string element
      */
-    bind: function(element) {
+    bind: function bind(element) {
 
         // Bind elements
-        $(element).each(function() {
-            if($(this).attr('data-currency') !== undefined) {
+        $(element).not('[data-plugin-loaded]').each(function () {
+            if ($(this).attr('data-currency') !== undefined) {
                 $(this).number(true, 2, '.', ',');
             } else {
                 $(this).number(true, 2, '.', '');
             }
+            $(this).attr('data-plugin-loaded', true);
         });
-
     }
 
 };
-},{}],26:[function(require,module,exports){
+
+},{}],28:[function(require,module,exports){
+'use strict';
+
 /**
  * Datepicker
  */
-var templateIcon    = _.template(require('./templates/datepicker.html'));
+var templateIcon = _.template(require('./templates/datepicker.html'));
 
-module.exports  = {
+module.exports = {
 
     /**
      * Init
      *
      * @param {string} element class or id to make as datepicker
      */
-    init: function(element) {
+    init: function init(element) {
         return this.bind(element);
     },
 
@@ -6468,95 +6562,94 @@ module.exports  = {
      * Bind element class or id to datepicker
      * @param string element
      */
-    bind: function(element) {
+    bind: function bind(element) {
 
-        var _this       = this;
+        var _this = this;
 
         // All inputs into data-datepicker
-        var $inputs      = $(element).find('input');
+        var $inputs = $(element).find('input');
 
         // Foreach input
-        $($inputs).each(function(i) {
+        $($inputs).not('[data-plugin-loaded]').each(function (i) {
 
-            var $input      = $(this);
+            var $input = $(this);
+            $input.attr('data-plugin-loaded', true);
 
             // Prepen Icon
             $input.parent().prepend(templateIcon);
 
-            var format      = $input.attr('data-format') || 'yyyy-mm-dd';
+            var format = $input.attr('data-format') || 'yyyy-mm-dd';
             $input.attr('data-format', format);
-            var isCheckin   = $input.hasClass('datepicker-checkin');
-            var isCheckout  = $input.hasClass('datepicker-checkout');
-            var range       = (isCheckin || isCheckout) ? $input.parents('[data-datepicker]:first') : false;
+            var isCheckin = $input.hasClass('datepicker-checkin');
+            var isCheckout = $input.hasClass('datepicker-checkout');
+            var range = isCheckin || isCheckout ? $input.parents('[data-datepicker]:first') : false;
             var placeholder = $input.attr('placeholder');
-            var cb          = $input.attr('data-onchange');
-            if(placeholder !== undefined && placeholder.length < 1) {
+            var cb = $input.attr('data-onchange');
+            if (placeholder !== undefined && placeholder.length < 1) {
                 $input.attr('placeholder', format.toUpperCase());
             }
-            var maxToday    = ($input.data('max') !== undefined) ? true : false;
-            if(range !== false && range.size() > 0) {
-                if(isCheckin) {
+            var maxToday = $input.data('max') !== undefined ? true : false;
+            if (range !== false && range.size() > 0) {
+                if (isCheckin) {
                     $input.attr('data-validator', 'datepicker-range');
                 }
-                if(isCheckout) {
+                if (isCheckout) {
                     $input.attr('data-validator', 'datepicker-range');
                 }
-                if(range.find('[data-max]').size() > 0) {
-                    maxToday    = true;
+                if (range.find('[data-max]').size() > 0) {
+                    maxToday = true;
                 }
             }
 
             var fdp;
-            var nowTemp     = new Date();
-            var now         = new Date(nowTemp.getFullYear(), nowTemp.getMonth(), nowTemp.getDate(), 0, 0, 0, 0);
+            var nowTemp = new Date();
+            var now = new Date(nowTemp.getFullYear(), nowTemp.getMonth(), nowTemp.getDate(), 0, 0, 0, 0);
             fdp = $($input).fdatepicker({
                 format: format.toLowerCase(),
-                onRender: function (date) {
-                    var este        = $('.datepicker-checkin', $($input).parents('[data-datepicker]:first'));
-                    var value       = (este.size() > 0 && este.val()) ? este.val() : moment();
-                    var checkin     = moment(value, format.toUpperCase()).subtract(1, 'days').toDate();
-                    if(!maxToday) {
-                        if(isCheckin) {
+                onRender: function onRender(date) {
+                    var este = $('.datepicker-checkin', $($input).parents('[data-datepicker]:first'));
+                    var value = este.size() > 0 && este.val() ? este.val() : moment();
+                    var checkin = moment(value, format.toUpperCase()).subtract(1, 'days').toDate();
+                    if (!maxToday) {
+                        if (isCheckin) {
                             return '';
                         }
-                        return (isCheckout &&  date.valueOf() < checkin.valueOf()) ? 'disabled' : '';
+                        return isCheckout && date.valueOf() < checkin.valueOf() ? 'disabled' : '';
                     }
-                    return date.valueOf() > now.valueOf() || (isCheckout &&  date.valueOf() < checkin.valueOf()) ? 'disabled' : '';
+                    return date.valueOf() > now.valueOf() || isCheckout && date.valueOf() < checkin.valueOf() ? 'disabled' : '';
                 }
             });
 
-            fdp.on('changeDate', function(ev) {
+            fdp.on('changeDate', function (ev) {
 
                 // Current datepicker
                 var datepicker = $(this);
 
                 // If has checkin or checkout (range)
-                if (datepicker.hasClass('datepicker-checkin')) {
+                if (datepicker.hasClass('datepicker-checkin')) {} else if (datepicker.hasClass('datepicker-checkout')) {}
 
-                } else if (datepicker.hasClass('datepicker-checkout')) {
-
-                }
-
-                if(cb !== undefined) {
+                if (cb !== undefined) {
                     cb.apply(datepicker);
                 }
-
             });
-
         });
-
     }
 
 };
 
-},{"./templates/datepicker.html":30}],27:[function(require,module,exports){
+},{"./templates/datepicker.html":32}],29:[function(require,module,exports){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 /**
  *
  * Form
  *
  */
+$.serializeJSON.defaultOptions.parseAll = true;
 
-module.exports   = {
+module.exports = {
 
     /**
      * Method to get form elements
@@ -6565,20 +6658,20 @@ module.exports   = {
      * @param string field
      * @returns Object
      */
-    get: function($form, field) {
+    get: function get($form, field) {
 
-        var data    = $form.find(':input').filter(function () {
-            if($(this).data('currency') !== undefined) {
-                return $.number( this.value, 2, '.', ',' );
+        var data = $form.find(':input').filter(function () {
+            if ($(this).data('currency') !== undefined) {
+                return $.number(this.value, 2, '.', ',');
             }
-            if($(this).data('decimal') !== undefined) {
-                return $.number( this.value, 2, '.', '' );
+            if ($(this).data('decimal') !== undefined) {
+                return $.number(this.value, 2, '.', '');
             }
-            return $.trim(this.value);
-        }).serializeJSON({checkboxUncheckedValue: "0"});
+            var tmpValue = $.trim(this.value);
+            return tmpValue ? tmpValue : '0'; // Send zero to send empty value
+        }).serializeJSON({ checkboxUncheckedValue: "0" });
 
-        return (field) ? data[field] : data;
-
+        return field ? data[field] : data;
     },
 
     /**
@@ -6589,10 +6682,10 @@ module.exports   = {
      * @example Form.autoload('user', { name: 'John Doe', email: 'jhondoe@example.com' }
      *
      */
-    load: function(attrs, model, form) {
+    load: function load(attrs, model, form) {
 
         // Each values
-        $.each(attrs, function(key, value) {
+        $.each(attrs, function (key, value) {
 
             //
             // key: value
@@ -6604,29 +6697,31 @@ module.exports   = {
             // Input: name="model[attribute]" value="value"
             //
 
-            if(value === null) {
-                value   = '';
-            } else if(typeof value === 'object' && value.id) {
-                value   = value.id;
+            if (value === null) {
+                value = '';
+            } else if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && value.id) {
+                value = value.id;
             }
 
-            if(form) {
-                $input  = (model) ? $('[name="'+ model +'['+ key +']"]', form) : $('[name="'+key+'"]', form);
+            var $input = void 0;
+
+            if (form) {
+                $input = model ? $('[name="' + model + '[' + key + ']"]', form) : $('[name="' + key + '"]', form);
             } else {
-                $input  = (model) ? $('[name="'+ model +'['+ key +']"]') : $('[name="'+key+'"]');
+                $input = model ? $('[name="' + model + '[' + key + ']"]') : $('[name="' + key + '"]');
             }
 
             // If exist
-            if($input.size() > 0 ) {
+            if ($input.size() > 0) {
 
                 // is checkbox
                 if ($input.is(':checkbox')) {
 
-                    (value && value !== '0') ? $input.prop('checked', true).change() : $input.prop('checked', false).change();
+                    value && value !== '0' ? $input.prop('checked', true).change() : $input.prop('checked', false).change();
 
-                    var container   = $input.parents('.md-switch__container:first');
-                    if(container.size() > 0) {
-                        if(!$input.is(':checked')) {
+                    var container = $input.parents('.md-switch__container:first');
+                    if (container.size() > 0) {
+                        if (!$input.is(':checked')) {
                             container.find(':input').not(':checkbox').attr('disabled', 'disabled');
 
                             // Only if has class md-switch__display
@@ -6637,41 +6732,38 @@ module.exports   = {
                             // Only if has class md-switch__display
                             container.find('.md-switch__display').fadeIn().removeClass('hide');
 
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 container.find(':input').not(':checkbox').first().trigger('focus');
                             }, 100);
                         }
                     }
-
                 } else {
 
                     // if is datepicker
-                    if($input.data('datepicker') !== undefined) {
-                        var tmpFormat   = $input.attr('data-format') || 'MM/DD/YYYY';
-                        if(value.indexOf("Z") > 0) {
-                            value           = (value) ? moment(value).format(tmpFormat) : '';
-                        } else if(value.length > 10) {
-                            value           = (value) ? moment(value, 'YYYY-MM-DD hh:ii:ss').format(tmpFormat) : '';
+                    if ($input.data('datepicker') !== undefined) {
+                        var tmpFormat = $input.attr('data-format') || 'MM/DD/YYYY';
+                        if (value.indexOf("Z") > 0) {
+                            value = value ? moment(value).format(tmpFormat) : '';
+                        } else if (value.length > 10) {
+                            value = value ? moment(value, 'YYYY-MM-DD hh:ii:ss').format(tmpFormat) : '';
                         } else {
-                            value           = (value) ? moment(value, 'YYYY-MM-DD').format(tmpFormat) : '';
+                            value = value ? moment(value, 'YYYY-MM-DD').format(tmpFormat) : '';
                         }
                     }
 
                     // if is currency
-                    if($input.data('currency') !== undefined) {
-                        value               = (value)   ? $.number(value, 2, '.', ',' ) : '0';
+                    if ($input.data('currency') !== undefined) {
+                        value = value ? $.number(value, 2, '.', ',') : '0';
                     }
 
                     // if is decimal
-                    if($input.data('decimal') !== undefined) {
-                        value               = (value)   ? $.number(value, 2, '.', '' ) : '0';
+                    if ($input.data('decimal') !== undefined) {
+                        value = value ? $.number(value, 2, '.', '') : '0';
                     }
 
                     $input.val(value);
-
                 }
             }
-
         });
     },
 
@@ -6679,31 +6771,31 @@ module.exports   = {
      * Remove input error
      * @param JQuery Object object
      */
-    inputValid: function($input, timeout) {
-        var $container  = $input.parents('div:first');
-        setTimeout(function() {
+    inputValid: function inputValid($input, timeout) {
+        var $container = $input.parents('div:first');
+        setTimeout(function () {
             $container.find('label').removeClass('is-invalid-label');
             $container.find('.form-error').removeClass('is-visible');
             $input.removeAttr('data-invalid').removeAttr('aria-invalid').removeClass('is-invalid-input');
-        }, (timeout > 0) ? timeout : 500);
+        }, timeout > 0 ? timeout : 500);
     },
 
     /**
      * Show input error
      * @param JQuery Object object
      */
-    inputInvalid: function($input, msg, timeout) {
-        var $container  = $input.parents('div:first');
+    inputInvalid: function inputInvalid($input, msg, timeout) {
+        var $container = $input.parents('div:first');
         var $inputError = $container.find('.form-error');
-        setTimeout(function() {
+        setTimeout(function () {
             $container.find('label').addClass('is-invalid-label');
-            if(msg) {
+            if (msg) {
                 $inputError.html(msg);
             }
             $inputError.addClass('is-visible');
             $input.attr('data-invalid', '').attr('aria-invalid', 'true').addClass('is-invalid-input');
             $input.parents('form:first').attr('data-invalid', '');
-        }, (timeout > 0) ? timeout : 500);
+        }, timeout > 0 ? timeout : 500);
     },
 
     /**
@@ -6713,14 +6805,14 @@ module.exports   = {
      * @param Object fields
      * @returns null
      */
-    dbSelect: function($input, data, fields, blank, value) {
+    dbSelect: function dbSelect($input, data, fields, blank, value) {
 
-        if(!data) {
+        if (!data || !Array.isArray(data)) {
             return;
         }
 
-        if(!fields) {
-            fields  = {value: 'id', option: 'name'};
+        if (!fields) {
+            fields = { value: 'id', option: 'name' };
         }
 
         var options = '';
@@ -6729,65 +6821,77 @@ module.exports   = {
             options = '<option value="">' + tmpSelect + '</option>';
         }
 
-        var each = function(items, fEach, cb){
+        var each = function each(items, fEach, cb) {
             var total = items.length,
-                i     = 0,
-                end   =  cb || function(){},
-                next  = function(i, items) {
-                    setTimeout(function() {
-                        fEach(i, items[i]);
-                        i++;
-                        if(i< total){
-                            next(i, items);
-                        }else{
-                            cb();
-                        }
-                    }, 0);
-                };
+                i = 0,
+                end = cb || function () {},
+                next = function next(i, items) {
+                setTimeout(function () {
+                    fEach(i, items[i]);
+                    i++;
+                    if (i < total) {
+                        next(i, items);
+                    } else {
+                        cb();
+                    }
+                }, 0);
+            };
             next(i, items);
         };
 
         $input.empty();
         $input.html('<option value="">Loading...</option>');
 
-        each(data, function(i, j) {
-            var row     = data[i];
+        each(data, function (i, j) {
+            var row = data[i];
+            var attrs = fields.attrs || [];
             var pkValue = row[fields.value] || '';
             var option;
 
-            if(Array.isArray(fields.option)) {
-                var tmpOption   = [];
-                fields.option.forEach(function(k) {
+            if (Array.isArray(fields.option)) {
+                var tmpOption = [];
+                fields.option.forEach(function (k) {
                     tmpOption.push(row[k] || '');
                 });
-                option  = tmpOption.join(' ');
-            } else if ( /\|/.test(fields.option) ) {
-                let parts   = fields.option.split('|');
-                let opt     = [];
-                parts.forEach(function(i) {
-                    if(row[i]) {
-                       opt.push(row[i]);
-                    }
-                });
-                option  = opt.join(' | ');
+                option = tmpOption.join(' ');
+            } else if (/\|/.test(fields.option)) {
+                (function () {
+                    var parts = fields.option.split('|');
+                    var opt = [];
+                    parts.forEach(function (i) {
+                        if (row[i]) {
+                            opt.push(row[i]);
+                        }
+                    });
+                    option = opt.join(' | ');
+                })();
             } else {
-                option  = row[fields.option] || '';
+                option = row[fields.option] || '';
             }
 
             if ((pkValue || pkValue === '0') && option) {
-                var selected    = (pkValue === value) ? 'selected="selected"' : '';
-                options += '<option value="' + pkValue + '" '+selected+'>' + option + '</option>';
+                var selected = pkValue === value ? 'selected="selected"' : '';
+                var dataAttrs = [];
+                if (attrs) {
+                    _.each(attrs, function (i) {
+                        if (row[i]) {
+                            dataAttrs.push('data-' + i + '="' + row[i] + '"');
+                        }
+                    });
+                }
+                options += '<option value="' + pkValue + '" ' + selected + ' ' + dataAttrs.join(' ') + '>' + option + '</option>';
             }
-        }, function(){
+        }, function () {
             $input.empty();
             $input.html(options);
         });
-
     }
 
-
 };
-},{}],28:[function(require,module,exports){
+
+},{}],30:[function(require,module,exports){
+"use strict";
+
 /**
  *
  * Password
@@ -6796,87 +6900,123 @@ module.exports   = {
  *
  */
 
-module.exports   = {
+module.exports = {
+
+  /**
+   * Init
+   *
+   * @param {string} element class or id to make as component
+   */
+  init: function init(element) {}
+
+};
+
+},{}],31:[function(require,module,exports){
+'use strict';
+
+/**
+ * Autocomplete
+ */
+
+module.exports = {
 
     /**
      * Init
      *
-     * @param {string} element class or id to make as component
+     * @param {string} element class or id to make as autocomplete
      */
-    init: function(element) {
+    init: function init(element) {
 
+        return this.bind(element);
+    },
+
+    /**
+     * Bind element class or id to autocomplete
+     * @param string element
+     */
+    bind: function bind(element) {
+
+        var _this = this;
+
+        // Bind elements
+        $(element).not('[data-plugin-loaded]').each(function () {
+
+            var $input = $(this);
+            var tag = $input.attr('data-select-tag') !== undefined;
+
+            $input.select2({
+                minimumInputLength: 2,
+                language: "es",
+                tags: tag,
+                createTag: function createTag(tag) {
+
+                    // check if the option is already there
+                    var found = false;
+                    $input.find('option').each(function () {
+                        if ($.trim(tag.term).toUpperCase() === $.trim($(this).text()).toUpperCase()) {
+                            found = true;
+                        }
+                    });
+
+                    // show the suggestion only if a match was not found
+                    if (!found) {
+                        return {
+                            id: tag.term,
+                            text: tag.term + " (Registrar)",
+                            isNew: true
+                        };
+                    }
+                }
+            });
+
+            $(this).attr('data-plugin-loaded', true);
+        });
     }
 
 };
-},{}],29:[function(require,module,exports){
+
+},{}],32:[function(require,module,exports){
+module.exports = "<div class=\"input-group-float input-group-float__right\">\n    <span class=\"input-group-label input-group-label__icon\">\n        <i class=\"mdi mdi-calendar\"></i>\n    </span>\n</div>";
+
+},{}],33:[function(require,module,exports){
+module.exports = "<div class=\"file-upload\">\n    <div class=\"row\">\n        <div class=\"small-12 columns\">\n\n            <label class=\"file-upload__content\" for=\"{{=id}}\">\n                <span class=\"file-upload__placeholder\">\n\n                    <span class=\"file_upload__placeholder__delete\">\n                        <i class=\"mdi mdi-delete\"></i>\n                    </span>\n\n                    <span class=\"file-upload__placeholder__content\">\n                        <i class=\"mdi mdi-cloud-upload\"></i>\n                        <span class=\"file-upload__placeholder__msg\">\n                            Arrastra o selecciona una imagen\n                        </span>\n                    </span>\n\n                </span>\n            </label>\n\n            <div class=\"file-upload__progressbar\">\n                <div class=\"success progress\">\n                    <div class=\"progress-meter\" style=\"width: 0%\">\n                        <div class=\"progress-meter__animation\"></div>\n                    </div>\n                </div>\n            </div>\n\n        </div>\n    </div>\n</div>";
+
+},{}],34:[function(require,module,exports){
+"use strict";
+
 /**
  *
- * Siwtch
+ * Password
+ *
+ * <input type="password />
  *
  */
 
-module.exports   = function() {
+module.exports = {
 
-    // Disable Siwtch Elements
-    $('body').on('change', '.md-switch__container [type="checkbox"]', function(e) {
-        
-        var este        = $(this);
-        var container   = este.parents('.md-switch__container:first');
-
-        if(!este.is(':checked')) {
-            container.find(':input').not(':checkbox').attr('disabled', 'disabled');
-
-            // Only if has class md-switch__display
-            container.find('.md-switch__display').fadeOut().addClass('hide');
-        } else {
-            container.find(':input').not(':checkbox').removeAttr('disabled');
-
-            // Only if has class md-switch__display
-            container.find('.md-switch__display').fadeIn().removeClass('hide');
-
-            setTimeout(function() {
-                container.find(':input').not(':checkbox').first().trigger('focus');
-            }, 100);
-        }
-
-    });
+  /**
+   * Init
+   *
+   * @param {string} element class or id to make as component
+   */
+  init: function init(element) {}
 
 };
-},{}],30:[function(require,module,exports){
-module.exports = "<div class=\"input-group-float input-group-float__right\">\n    <span class=\"input-group-label input-group-label__icon\">\n        <i class=\"mdi mdi-calendar\"></i>\n    </span>\n</div>";
 
-},{}],31:[function(require,module,exports){
-module.exports = "<div class=\"file-upload\">\n    <div class=\"row\">\n        <div class=\"small-12 columns\">\n\n            <label class=\"file-upload__content\" for=\"{{=id}}\">\n                <span class=\"file-upload__placeholder\">\n\n                    <span class=\"file_upload__placeholder__delete\">\n                        <i class=\"mdi mdi-delete\"></i>\n                    </span>\n\n                    <span class=\"file-upload__placeholder__content\">\n                        <i class=\"mdi mdi-cloud-upload\"></i>\n                        <span class=\"file-upload__placeholder__msg\">\n                            Arrastra o selecciona una imagen\n                        </span>\n                    </span>\n\n                </span>\n            </label>\n\n            <div class=\"file-upload__progressbar\">\n                <div class=\"success progress\">\n                    <div class=\"progress-meter\" style=\"width: 0%\">\n                        <div class=\"progress-meter__animation\"></div>\n                    </div>\n                </div>\n            </div>\n\n        </div>\n    </div>\n</div>";
+},{}],35:[function(require,module,exports){
+'use strict';
 
-},{}],32:[function(require,module,exports){
-arguments[4][28][0].apply(exports,arguments)
-},{"dup":28}],33:[function(require,module,exports){
 /**
  *
  * Upload
  *
  */
 
-var Form        = require('helpers/form/form');
-var config      = require('../../config/config');
-var template    = _.template(require('./templates/upload.html'));
+var Form = require('helpers/form/form');
+var config = require('../../config/config');
+var template = _.template(require('./templates/upload.html'));
 
-$('body').on('click', '.file_upload__placeholder__delete', function(e) {
-    e.preventDefault();
-    var fileUpload  = $(this).parents('.file-upload');
-    var inputReset  = fileUpload.parents('div:first').find('input');
-    App.Modal.render('confirm', {
-        title: 'Eliminar Imagen',
-        description: 'Estás seguro de querer eliminar esta imagen cargada?',
-        onAccept: function() {
-            inputReset.val('');
-            fileUpload.find('.file-upload__content:first').css({'background-image': 'none', 'height': 'auto'}).removeClass('has-image');
-        }
-    });
-    return false;
-});
-
-module.exports   = {
+module.exports = {
 
     dropZone: '',
 
@@ -6891,46 +7031,49 @@ module.exports   = {
      *
      * @param {string} element class or id to make as component
      */
-    init: function(element) {
+    init: function init(element) {
         return this.bind(element);
     },
 
-    bind: function(element) {
+    bind: function bind(element) {
 
-        var _this           = this;
-        $(element).not('.file-upload-initialized').each(function() {
+        var _this = this;
+        $(element).not('[data-plugin-loaded]').each(function () {
 
-            $input          = $(this);
-            if($input.attr('id') === undefined) {
-                $input.attr('id', 'file-upload__input-'+ Date.now());
+            var $input = $(this);
+            $input.attr('data-plugin-loaded', true);
+
+            if ($input.attr('id') === undefined) {
+                $input.attr('id', 'file-upload__input-' + Date.now());
             };
 
             $input.addClass('hide file-upload-initialized');
-            $input.after(template({id: $input.attr('id') }));
+            $input.after(template({ id: $input.attr('id') }));
 
-            var $inputTarget= $('[name="'+ $input.attr('data-target') +'"]', $input.parents('div:first'));
-            if($inputTarget.val()) {
+            var $inputTarget = $('[name="' + $input.attr('data-target') + '"]', $input.parents('div:first'));
+            if ($inputTarget.val()) {
                 _this._loadImageToBackground($inputTarget.val(), $input.parent());
             }
 
-            _this.dropZone  = $input.parent().find('.file-upload:first');
-            _this.accepted  = $input.attr('accept');
-            if($input.attr('data-maxsize') !== undefined) {
-                _this.maxSize   = _this._sizeToBytes($input.attr('data-maxsize'), true);
+            _this.dropZone = $input.parent().find('.file-upload:first');
+            _this.accepted = $input.attr('accept');
+            if ($input.attr('data-maxsize') !== undefined) {
+                _this.maxSize = _this._sizeToBytes($input.attr('data-maxsize'), true);
             }
             _this.humanSize = _this._bytesToSize(_this.maxSize, true);
 
             $input.fileupload({
 
-                dataType:           'html',
-                acceptFileTypes:    /(\.|\/)(gif|jpe?g|png)$/i,
-                maxFileSize:        _this.maxSize,
-                dropZone:           _this.dropZone,
-                url:                App.Filter.get(config.SERVER.host, 'rtrim', '/') + '/upload/?name='+ $input.attr('name'),
-                singleFileUploads:  true,
-                beforeSend: function(req) {
-                    if(config.SERVER.headers) {
-                        for(i in config.SERVER.headers) {
+                dataType: 'html',
+                acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+                maxFileSize: _this.maxSize,
+                dropZone: _this.dropZone,
+                url: App.Filter.get(config.SERVER.host, 'rtrim', '/') + '/upload/?name=' + $input.attr('name'),
+                singleFileUploads: true,
+                beforeSend: function beforeSend(req) {
+                    if (config.SERVER.headers) {
+                        var i = void 0;
+                        for (i in config.SERVER.headers) {
                             req.setRequestHeader(i, config.SERVER.headers[i]);
                         }
                     }
@@ -6939,7 +7082,7 @@ module.exports   = {
             }).bind('fileuploadadd', function (e, data) {
 
                 // Validate file
-                if(!_this._validate($input, data)) {
+                if (!_this._validate($input, data)) {
                     return false;
                 }
 
@@ -6947,26 +7090,23 @@ module.exports   = {
                 _this.start($(this));
 
                 data.submit();
-
             }).bind('fileuploadprogressall', function (e, data) {
 
                 //Progress
                 var progress = parseInt(data.loaded / data.total * 100, 10);
                 _this.updateProgressBar($(this), progress);
-
-
             }).bind('fileuploadprocessalways', function (e, data) {
 
                 // Append Preview
 
-            }).bind('fileuploaddone', function(e, data) {
+            }).bind('fileuploaddone', function (e, data) {
 
                 _this.endProgressBar($(this));
 
                 //Result
                 try {
-                    var tmp     = data.result.replace('<pre>', '').replace('</pre>', '');
-                    var r       = JSON.parse(tmp);
+                    var tmp = data.result.replace('<pre>', '').replace('</pre>', '');
+                    var r = JSON.parse(tmp);
                     if (r.success === true) {
 
                         $inputTarget.val(r.data.url);
@@ -6975,27 +7115,23 @@ module.exports   = {
 
                         return r;
                     } else {
-                        App.Flash.error((r.msg !== undefined) ? r.msg : 'El archivo no se pudo subir al sevidor. Intenta nuevamente.');
+                        App.Flash.error(r.msg !== undefined ? r.msg : 'El archivo no se pudo subir al sevidor. Intenta nuevamente.');
                     }
                 } catch (e) {
                     console.log(e);
                     App.Flash.error('El archivo no se pudo subir al sevidor. Intenta nuevamente.');
                     return {};
                 }
-
             }).bind('fileuploadfail', function (e, data) {
 
                 //Show error
                 App.Flash.error('El archivo no pudo ser subido al servidor.\nIntenta nuevamente.');
                 _this.endProgressBar($(this));
-
             });
-
         });
 
         // Bind Drag Zone
         _this._bindDrag();
-
     },
 
     /**
@@ -7003,20 +7139,19 @@ module.exports   = {
      * @param {type} input
      * @returns {undefined}
      */
-    start: function (input) {
+    start: function start(input) {
 
         // Disable submit button
-        var $form    = input.parents('form').first();
+        var $form = input.parents('form').first();
         $form.find(':submit').attr('disabled', 'disabled');
 
         // Reset proggres barr
-        var container   = input.parent();
-        var msg         = container.find('.file-upload__placeholder__msg');
+        var container = input.parent();
+        var msg = container.find('.file-upload__placeholder__msg');
         msg.text('Subiendo');
         container.find('.progress').removeClass('alert');
         container.find('.progress-meter:first').css('width', '0%');
         input.prop('disabled', true);
-
     },
 
     /**
@@ -7025,29 +7160,27 @@ module.exports   = {
      * @param {type} progress
      * @returns {undefined}
      */
-    updateProgressBar: function (input, progress) {
+    updateProgressBar: function updateProgressBar(input, progress) {
 
-        var bar     = input.parent().find('.file-upload__progressbar');
+        var bar = input.parent().find('.file-upload__progressbar');
         bar.find('.progress-meter:first').css('width', progress + '%');
-
     },
 
     //End Progress bar
-    endProgressBar: function (input, alert) {
+    endProgressBar: function endProgressBar(input, alert) {
 
         // Remove attr disable
-        var $form    = input.parents('form').first();
-        $form .find(':submit').removeAttr('disabled');
+        var $form = input.parents('form').first();
+        $form.find(':submit').removeAttr('disabled');
 
-        var container   = input.parent();
-        var msg         = container.find('.file-upload__placeholder__msg');
+        var container = input.parent();
+        var msg = container.find('.file-upload__placeholder__msg');
         msg.text('Arrastra o selecciona una imagen');
 
-        var bar     = container.find('.file-upload__progressbar');
+        var bar = container.find('.file-upload__progressbar');
         bar.find('.progress-meter:first').fadeOut(700).css('width', '0%');
 
         input.prop('disabled', false);
-
     },
 
     /**
@@ -7056,18 +7189,17 @@ module.exports   = {
      * @param {type} scope
      * @returns {undefined}
      */
-    _loadImageToBackground: function(image, scope) {
+    _loadImageToBackground: function _loadImageToBackground(image, scope) {
 
-        loadImage(image, function(img) {
-            var height  = $(img).attr('height');
-            if(height > 200) {
-                height  = 200;
+        loadImage(image, function (img) {
+            var height = $(img).attr('height');
+            if (height > 200) {
+                height = 200;
             }
-            var container   = $('.file-upload__content', scope);
-            container.css({'background-image': 'url('+ image +')', 'height': height+'px'});
+            var container = $('.file-upload__content', scope);
+            container.css({ 'background-image': 'url(' + image + ')', 'height': height + 'px' });
             container.addClass('has-image');
         });
-
     },
 
     /**
@@ -7076,8 +7208,8 @@ module.exports   = {
      * @param boolean decimals
      * @returns number
      */
-    _sizeToBytes: function (size, decimals) {
-        var bytes = decimals ? {'B': 1, 'KB': 1000, 'MB': (1000 * 1000), 'GB': (1000 * 1000 * 1000), 'TB': (1000 * 1000 * 1000 * 1000), 'PB': (1000 * 1000 * 1000 * 1000 * 1000)} : {'B': 1, 'KB': 1024, 'MB': (1024 * 1024), 'GB': (1024 * 1024 * 1024), 'TB': (1024 * 1024 * 1024 * 1024), 'PB': (1024 * 1024 * 1024 * 1024 * 1024)};
+    _sizeToBytes: function _sizeToBytes(size, decimals) {
+        var bytes = decimals ? { 'B': 1, 'KB': 1000, 'MB': 1000 * 1000, 'GB': 1000 * 1000 * 1000, 'TB': 1000 * 1000 * 1000 * 1000, 'PB': 1000 * 1000 * 1000 * 1000 * 1000 } : { 'B': 1, 'KB': 1024, 'MB': 1024 * 1024, 'GB': 1024 * 1024 * 1024, 'TB': 1024 * 1024 * 1024 * 1024, 'PB': 1024 * 1024 * 1024 * 1024 * 1024 };
         var matches = size.match(/([KMGTP]?B)/);
         size = parseFloat(size) * bytes[matches[1]];
         return size.toFixed(0);
@@ -7089,7 +7221,7 @@ module.exports   = {
      * @param boolean decimals
      * @returns string
      */
-    _bytesToSize: function (bytes, decimals) {
+    _bytesToSize: function _bytesToSize(bytes, decimals) {
         var thresh = decimals ? 1000 : 1024;
         if (Math.abs(bytes) < thresh) {
             return bytes + ' B';
@@ -7100,13 +7232,13 @@ module.exports   = {
             bytes /= thresh;
             ++u;
         } while (Math.abs(bytes) >= thresh && u < units.length - 1);
-        return (decimals) ? bytes.toFixed(0) + ' ' + units[u] : bytes.toFixed(1) + ' ' + units[u];
+        return decimals ? bytes.toFixed(0) + ' ' + units[u] : bytes.toFixed(1) + ' ' + units[u];
     },
 
     /*
      * Get extensions
      */
-    _extension: function (name) {
+    _extension: function _extension(name) {
         var pattern = /^.+\.([^.]+)$/;
         var ext = pattern.exec(name);
         return ext === null ? "" : ext[1];
@@ -7118,9 +7250,9 @@ module.exports   = {
      * //TODO migreate to abide validation pattern="image, video, file"
      * @returns boolean
      */
-    _validate: function($input, data) {
+    _validate: function _validate($input, data) {
 
-        var _this           = this;
+        var _this = this;
 
         var acceptFileTypes = /(\.|\/)(gif|jpe?g|png)$/i;
 
@@ -7153,14 +7285,12 @@ module.exports   = {
         }
 
         return true;
-
     },
-
 
     /**
      * Bind drag
      */
-    _bindDrag: function () {
+    _bindDrag: function _bindDrag() {
 
         $(document).bind('drop dragover', function (e) {
             e.preventDefault();
@@ -7168,13 +7298,16 @@ module.exports   = {
 
         $(document).bind('dragover', function (e) {
 
-            var dropZone = $('.file-upload'), foundDropzone, timeout = window.dropZoneTimeout;
+            var dropZone = $('.file-upload'),
+                foundDropzone,
+                timeout = window.dropZoneTimeout;
             if (!timeout) {
                 dropZone.addClass('in');
             } else {
                 clearTimeout(timeout);
             }
-            var found = false, node = e.target;
+            var found = false,
+                node = e.target;
             do {
                 if ($(node).hasClass('file-upload')) {
                     found = true;
@@ -7191,23 +7324,25 @@ module.exports   = {
                 window.dropZoneTimeout = null;
                 dropZone.removeClass('in hover');
             }, 100);
-
         });
-
     }
 
 };
-},{"../../config/config":11,"./templates/upload.html":31,"helpers/form/form":27}],34:[function(require,module,exports){
+
+},{"../../config/config":11,"./templates/upload.html":33,"helpers/form/form":29}],36:[function(require,module,exports){
+'use strict';
+
 /**
  * Utility functions to create interactive ui components for the application in
  * general.
  */
 
-var templateBasic       = _.template(require('./templates/basic.html'));
-var templateConfirm     = _.template(require('./templates/confirm.html'));
-var templateDate        = _.template(require('./templates/filter-date.html'));
+var templateBasic = _.template(require('./templates/basic.html'));
+var templateConfirm = _.template(require('./templates/confirm.html'));
+var templateDate = _.template(require('./templates/filter-date.html'));
 
-var Form                = require('helpers/form/form');
+var BindForm = require('helpers/form/bind');
+var Zurb = require('libs/zurb/Zurb');
 
 module.exports = {
 
@@ -7219,24 +7354,24 @@ module.exports = {
      *
      * @return {jQuery}
      */
-    render: function (type, opts) {
+    render: function render(type, opts) {
 
-        var attrs   = _({}).extend({
-            id:             'modal-' + Date.now(),
-            title:          '',
-            description:    '',
-            data:           {},
-            iconClose:      false,
-            iconCloseLink:  false,
-            button:         false,
-            buttonText:     '',
-            buttonLink:     false,
-            buttonAccept:   'Aceptar',
-            buttonCancel:   'Cancelar',
-            onAccept:       null,
-            onCancel:       null,
-            onSubmit:       null,
-            template:       null
+        var attrs = _({}).extend({
+            id: 'modal-' + Date.now(),
+            title: '',
+            description: '',
+            data: {},
+            iconClose: false,
+            iconCloseLink: false,
+            button: false,
+            buttonText: '',
+            buttonLink: false,
+            buttonAccept: 'Aceptar',
+            buttonCancel: 'Cancelar',
+            onAccept: null,
+            onCancel: null,
+            onSubmit: null,
+            template: null
         }, opts);
 
         var $el;
@@ -7246,6 +7381,9 @@ module.exports = {
                 $el = $(templateConfirm(attrs));
                 break;
             case 'basic':
+                $el = $(templateBasic(attrs));
+                break;
+            case 'alert':
                 $el = $(templateBasic(attrs));
                 break;
             case 'date':
@@ -7258,46 +7396,65 @@ module.exports = {
 
         $($el).appendTo('body');
 
+        $('form[data-abide]').attr('novalidate', 'novalidate');
+
         $el.foundation();
 
+        BindForm.init();
+
         if (attrs.onAccept) {
-            $el.find('.btn-confirm').on('click', attrs.onAccept);
+            $el.find('.btn-confirm').on('click', function (e) {
+                e.preventDefault();
+                attrs.onAccept($el);
+            });
         }
+
         if (attrs.onCancel) {
             $el.find('.btn-cancel').on('click', attrs.onCancel);
         }
+
         if (attrs.onSubmit) {
-            $('body').on('submit', $el.find('form:first'), function(e) {
+            $el.on('submit', function (e) {
                 e.preventDefault();
-                attrs.onSubmit();
+                attrs.onSubmit($(this), $el);
                 return false;
             });
         }
 
-        $el.foundation('open');
+        setTimeout(function () {
 
-        $el.on('closed.zf.reveal', function(e) {
+            $el.foundation('open');
+            Zurb.reflow();
+        }, 50);
 
-            $el.remove();
+        $el.on('closed.zf.reveal', function (e) {
 
+            $el.off().remove();
+        });
+
+        $el.on('open.zf.reveal', function (e) {
+            if (attrs.onRender) {
+                attrs.onRender($el);
+            }
         });
 
         return $el;
-
     }
 
 };
 
-},{"./templates/basic.html":35,"./templates/confirm.html":36,"./templates/filter-date.html":37,"helpers/form/form":27}],35:[function(require,module,exports){
+},{"./templates/basic.html":37,"./templates/confirm.html":38,"./templates/filter-date.html":39,"helpers/form/bind":25,"libs/zurb/Zurb":49}],37:[function(require,module,exports){
 module.exports = "<div class=\"reveal reveal-modal\" id=\"{{=id}}\" data-reveal data-options=\"closeOnClick: false; closeOnEsc: false;\">\n\n    <div class=\"reveal-modal-header\">\n        <div class=\"row\">\n            <div class=\"small-12 columns\">\n                <button class=\"close-button\" data-close aria-label=\"Close modal\" type=\"button\">\n                    <span aria-hidden=\"true\"><i class=\"mdi mdi-close\"></i></span>\n                </button>\n                <h2>{{= title }}</h2>\n            </div>\n        </div>\n    </div>\n\n    <div class=\"reveal-modal-body\">\n        <div class=\"large-12 columns\">\n            <p class=\"reveal-modal-body__text\">{{=description}}</p>\n        </div>\n    </div>\n\n    <div class=\"reveal-modal-actions\">\n        {{ if (buttonText || buttonLink) { }}\n            <div class=\"small-12 columns text-right\">\n            {{ if (buttonLink) { }}\n                <a class=\"md-button md-button__flat\" data-close href=\"{{=buttonLink}}\">{{=buttonText}}</a>\n            {{ } else { }}\n                <button class=\"md-button md-button__flat\" data-close type=\"button\">{{=buttonText}}</button>\n            {{ } }}\n            </div>\n        {{ } }}\n    </div>\n\n</div>\n";
 
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 module.exports = "<div id=\"{{=id}}\" class=\"reveal reveal-modal\" data-reveal data-options=\"closeOnClick: false; closeOnEsc: false;\">\n\n    <div class=\"reveal-modal-header\">\n        <div class=\"row\">\n            <div class=\"small-12 columns\">\n                <button class=\"close-button btn-cancel\" data-close aria-label=\"Close modal\" type=\"button\">\n                    <span aria-hidden=\"true\"><i class=\"mdi mdi-close\"></i></span>\n                </button>\n                <h2>{{= title }}</h2>\n            </div>\n        </div>\n    </div>\n\n    <div class=\"reveal-modal-body\">\n        <div class=\"row\">\n            <div class=\"small-12 columns\">\n                <p class=\"reveal-modal-body__text text-left\">{{=description}}</p>\n            </div>\n        </div>\n    </div>\n\n    <div class=\"reveal-modal-actions\">\n        <div class=\"small-12 columns\">\n            <div class=\"button-group float-right\">\n                <button class=\"btn-cancel   md-button md-button__flat md-ripple\" data-close>{{=buttonCancel}}</button>\n                <button class=\"btn-confirm  md-button md-button__flat md-ripple\" data-close>{{=buttonAccept}}</button>\n            </div>\n        </div>\n    </div>\n\n</div>\n";
 
-},{}],37:[function(require,module,exports){
-module.exports = "<div class=\"reveal reveal-modal\" id=\"{{=id}}\" data-reveal data-options=\"closeOnClick: false; closeOnEsc: false;\">\n\n    <div class=\"reveal-modal-header\">\n        <div class=\"row\">\n            <div class=\"small-12 columns\">\n                <button class=\"close-button\" data-close aria-label=\"Close modal\" type=\"button\">\n                    <span aria-hidden=\"true\"><i class=\"mdi mdi-close\"></i></span>\n                </button>\n                <h2>{{= title }}</h2>\n            </div>\n        </div>\n    </div>\n\n    <div class=\"reveal-modal-body\">\n\n        <div class=\"row\">\n            <div class=\"small-12 columns\">\n\n                <form id=\"form-{{=id}}\" method=\"post\" data-abide novalidate data-options=\"liveValidate: false;\">\n\n                    <div class=\"row\" data-datepicker>\n                        <div class=\"small-6 columns\">\n                            <div class=\"row collapse\">\n                                <div class=\"small-12 columns\">\n                                    <input type=\"text\" value=\"\" class=\"datepicker-checkin\" required data-max=\"today\" />\n                                    <label>Desde</label>\n                                    <span class=\"form-error\">La fecha inicial debe ser válida y menor que la fecha final.</span>\n                                </div>\n                            </div>\n                        </div>\n                        <div class=\"small-6 columns\">\n                            <div class=\"row collapse\">\n                                <div class=\"small-12 columns\">\n                                    <label>Hasta\n                                        <input type=\"text\" value=\"\" class=\"datepicker-checkout\" required />\n                                        <span class=\"form-error\">La fecha final debe ser mayor a la fecha incial.</span>\n                                    </label>\n                                </div>\n                            </div>\n                        </div>\n                    </div>\n\n                    <div class=\"reveal-modal-actions\" style=\"margin-top: 1rem\">\n                        <div class=\"row\">\n                            <div class=\"small-12 columns text-right\">\n                                <button class=\"md-button md-button__flat\" type=\"submit\">{{=buttonAccept}}</button>\n                            </div>\n                        </div>\n                    </div>\n\n                </form>\n\n            </div>\n        </div>\n\n    </div>\n\n</div>\n";
+},{}],39:[function(require,module,exports){
+module.exports = "<div class=\"reveal reveal-modal\" id=\"{{=id}}\" data-reveal data-options=\"closeOnClick: false; closeOnEsc: false;\">\n\n    <div class=\"reveal-modal-header\">\n        <div class=\"row\">\n            <div class=\"small-12 columns\">\n                <button class=\"close-button\" data-close aria-label=\"Close modal\" type=\"button\">\n                    <span aria-hidden=\"true\"><i class=\"mdi mdi-close\"></i></span>\n                </button>\n                <h2>{{= title }}</h2>\n            </div>\n        </div>\n    </div>\n\n    <div class=\"reveal-modal-body\">\n\n        <div class=\"row\">\n            <div class=\"small-12 columns\">\n\n                <form id=\"form-{{=id}}\" method=\"post\" data-abide novalidate data-options=\"liveValidate: false;\">\n\n                    <div class=\"row\" data-datepicker>\n                        <div class=\"small-6 columns\">\n                            <label>Desde\n                                <input type=\"text\" name=\"desde\" class=\"datepicker-checkin\" required data-max=\"today\" />\n                                <span class=\"form-error\">La fecha inicial debe ser válida y menor que la fecha final.</span>\n                            </label>\n                        </div>\n                        <div class=\"small-6 columns\">\n                            <label>Hasta\n                                <input type=\"text\" name=\"hasta\" class=\"datepicker-checkout\" required />\n                                <span class=\"form-error\">La fecha final debe ser mayor a la fecha incial.</span>\n                            </label>\n                        </div>\n                    </div>\n\n                    <div class=\"reveal-modal-actions\" style=\"margin-top: 1rem\">\n                        <div class=\"row\">\n                            <div class=\"small-12 columns text-right\">\n                                <button class=\"md-button md-button__flat\" type=\"submit\">{{=buttonAccept}}</button>\n                            </div>\n                        </div>\n                    </div>\n\n                </form>\n\n            </div>\n        </div>\n\n    </div>\n\n</div>\n";
 
-},{}],38:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
+'use strict';
+
 /**
  * API Connection
  *
@@ -7326,81 +7483,74 @@ module.exports = "<div class=\"reveal reveal-modal\" id=\"{{=id}}\" data-reveal 
  *
  */
 
-const Config = require('../config/config');
+var Config = require('../config/config');
 
 // Support cors
 $.support.cors = true;
 
 module.exports = {
 
-    lastError: {
+    lastError: {},
 
-    },
-
-    get: function (endpoint) {
+    get: function get(endpoint) {
 
         return this._send(endpoint, 'GET');
-
     },
 
-    post: function (endpoint, data) {
+    post: function post(endpoint, data) {
 
         return this._send(endpoint, 'POST', data);
-
     },
 
-    put: function (endpoint, data) {
+    put: function put(endpoint, data) {
 
         return this._send(endpoint, 'PUT', data);
-
     },
 
-    destroy: function (endpoint) {
+    destroy: function destroy(endpoint) {
 
-       return this._send(endpoint, 'DELETE');
-
+        return this._send(endpoint, 'DELETE');
     },
 
-    setError: function (endpoint, xhr, text) {
+    setError: function setError(endpoint, xhr, text) {
 
-        let data = {
-            'statusCode':   xhr.statusCode().status,
-            'error':        text,
-            'endpoint':     endpoint
+        var data = {
+            'statusCode': xhr.statusCode().status,
+            'error': text,
+            'endpoint': endpoint
         };
 
-        let error = (!xhr.responseJSON) ? data : $.extend(data, xhr.responseJSON);
-        if(error.error === 'error') {
-            error.error  = 'Se ha producido un error en la comunicación con el servidor. Por favor intenta más tarde.';
+        var error = !xhr.responseJSON ? data : $.extend(data, xhr.responseJSON);
+        if (error.error === 'error') {
+            error.error = 'Se ha producido un error en la comunicación con el servidor. Por favor intenta más tarde.';
         }
 
-        this.lastError  = error;
+        this.lastError = error;
 
         return this.lastError;
-
     },
 
-    _send: function(endpoint, type, params) {
+    _send: function _send(endpoint, type, params) {
 
-        var _this       = this;
+        var _this = this;
 
         _this.lastError = {};
 
         //Url
-        var url         = App.Filter.get(Config.SERVER.host, 'rtrim', '/') +'/'+ App.Filter.get(endpoint, 'trim', '/');
-        var headers     = Config.SERVER.headers;
+        var url = App.Filter.get(Config.SERVER.host, 'rtrim', '/') + '/' + App.Filter.get(endpoint, 'trim', '/');
+        var headers = Config.SERVER.headers;
 
         // Config
-        var prop        = {
-            'url':          url,
-            'async':        true,
-            'dataType':     'json',
-            'type':         type.toUpperCase(),
-            'data':         (type === 'GET') ? undefined : params,
-            beforeSend: function(req) {
-                if(headers) {
-                    let i;
-                    for(i in headers) {
+        var prop = {
+            'url': url,
+            'async': true,
+            'dataType': 'json',
+            'type': type.toUpperCase(),
+            'data': type === 'GET' ? undefined : params,
+            beforeSend: function beforeSend(req) {
+                if (headers) {
+                    var i = void 0;
+                    for (i in headers) {
                         req.setRequestHeader(i, headers[i]);
                     }
                 }
@@ -7408,24 +7558,22 @@ module.exports = {
         };
 
         //Request
-        const request = $.ajax(prop);
+        var request = $.ajax(prop);
 
-        request.done(function () {
-
-        }).fail(function (xhr, text) {
+        request.done(function () {}).fail(function (xhr, text) {
 
             // Set error
             _this.setError(endpoint, xhr, text);
-        }).always(function () {
-
-        });
+        }).always(function () {});
 
         return request;
-
     }
 
 };
-},{"../config/config":11}],39:[function(require,module,exports){
+
+},{"../config/config":11}],41:[function(require,module,exports){
+"use strict";
+
 /**
  * Filter
  *
@@ -7434,38 +7582,38 @@ module.exports = {
  *
  */
 
-var Filters     = ({"ltrimFilter":require("./filters/ltrimFilter.js"),"prefixFilter":require("./filters/prefixFilter.js"),"rtrimFilter":require("./filters/rtrimFilter.js"),"suffixFilter":require("./filters/suffixFilter.js"),"trimFilter":require("./filters/trimFilter.js")});
+var Filters = { "ltrimFilter": require("./filters/ltrimFilter.js"), "prefixFilter": require("./filters/prefixFilter.js"), "rtrimFilter": require("./filters/rtrimFilter.js"), "suffixFilter": require("./filters/suffixFilter.js"), "trimFilter": require("./filters/trimFilter.js") };
 
-module.exports  = {
+module.exports = {
 
-    get: function(str, filters, opts) {
+    get: function get(str, filters, opts) {
 
-        var _this       = this;
+        var _this = this;
 
-        if(Array.isArray(filters)) {
-            filters.forEach(function(filter) {
-                var f   = _this.load(filter);
-                str     = f.exec(str, opts);
+        if (Array.isArray(filters)) {
+            filters.forEach(function (filter) {
+                var f = _this.load(filter);
+                str = f.exec(str, opts);
             });
             return str;
         } else {
-            var f       = _this.load(filters);
+            var f = _this.load(filters);
             return f.exec(str, opts);
         }
-
     },
 
-    load: function(filter) {
-        if(!Filters[filter+'Filter']) {
+    load: function load(filter) {
+        if (!Filters[filter + 'Filter']) {
             console.error("FILTER", filter, "NOT FOUND INTO /libs/filter/filters");
         }
-        return Filters[filter+'Filter'];
+        return Filters[filter + 'Filter'];
     }
 
-
-
 };
-},{"./filters/ltrimFilter.js":40,"./filters/prefixFilter.js":41,"./filters/rtrimFilter.js":42,"./filters/suffixFilter.js":43,"./filters/trimFilter.js":44}],40:[function(require,module,exports){
+
+},{"./filters/ltrimFilter.js":42,"./filters/prefixFilter.js":43,"./filters/rtrimFilter.js":44,"./filters/suffixFilter.js":45,"./filters/trimFilter.js":46}],42:[function(require,module,exports){
+"use strict";
+
 /**
  * Filter ltrim
  *
@@ -7473,21 +7621,26 @@ module.exports  = {
  * return 'tom string'
  *
  */
-module.exports   = {
+module.exports = {
 
-    exec: function(str, opt) {
+    exec: function exec(str, opt) {
         if (opt) {
-            while (str.charAt(0) == opt)
+            while (str.charAt(0) == opt) {
                 str = str.substr(1, str.length - 1);
+            }
         } else {
-            while (str.charAt(0) == " ")
+            while (str.charAt(0) == " ") {
                 str = str.substr(1, str.length - 1);
+            }
         }
         return str;
     }
 
 };
-},{}],41:[function(require,module,exports){
+
+},{}],43:[function(require,module,exports){
+"use strict";
+
 /**
  * Filter prefix
  *
@@ -7495,20 +7648,22 @@ module.exports   = {
  * return '/custom string'
  *
  */
-module.exports   = {
+module.exports = {
 
-    exec: function(str, opt) {
+    exec: function exec(str, opt) {
 
         if (str.indexOf(opt) === 0) {
             return str;
         } else {
             return opt + str;
         }
-
     }
 
 };
-},{}],42:[function(require,module,exports){
+
+},{}],44:[function(require,module,exports){
+"use strict";
+
 /**
  * Filter ltrim
  *
@@ -7516,21 +7671,26 @@ module.exports   = {
  * return 'tom string'
  *
  */
-module.exports   = {
+module.exports = {
 
-    exec: function(str, opt) {
+    exec: function exec(str, opt) {
         if (opt) {
-            while (str.charAt(str.length - 1) == opt)
+            while (str.charAt(str.length - 1) == opt) {
                 str = str.substr(0, str.length - 1);
+            }
         } else {
-            while (str.charAt(str.length - 1) == " ")
+            while (str.charAt(str.length - 1) == " ") {
                 str = str.substr(0, str.length - 1);
+            }
         }
         return str;
     }
 
 };
-},{}],43:[function(require,module,exports){
+
+},{}],45:[function(require,module,exports){
+"use strict";
+
 /**
  * Filter suffix
  *
@@ -7538,32 +7698,59 @@ module.exports   = {
  * return 'custom string/'
  *
  */
-module.exports   = {
+module.exports = {
 
-    exec: function(str, opt) {
+    exec: function exec(str, opt) {
 
-        if (str.endsWith(opt))  {
+        if (str.endsWith(opt)) {
             return str;
         } else {
             return str + opt;
         }
-
     }
 
 };
-},{}],44:[function(require,module,exports){
-arguments[4][40][0].apply(exports,arguments)
-},{"dup":40}],45:[function(require,module,exports){
-module.exports  = {
+
+},{}],46:[function(require,module,exports){
+"use strict";
+
+/**
+ * Filter ltrim
+ *
+ * Filter.get('custom string', 'ltrim', 'cus');
+ * return 'tom string'
+ *
+ */
+module.exports = {
+
+    exec: function exec(str, opt) {
+        if (opt) {
+            while (str.charAt(0) == opt) {
+                str = str.substr(1, str.length - 1);
+            }
+        } else {
+            while (str.charAt(0) == " ") {
+                str = str.substr(1, str.length - 1);
+            }
+        }
+        return str;
+    }
+
+};
+
+},{}],47:[function(require,module,exports){
+'use strict';
+
+module.exports = {
 
     // Convert an objecto to query string
-    'toQueryString': function (parameters) {
+    'toQueryString': function toQueryString(parameters) {
         var queryString = _.reduce(parameters, function (components, value, key) {
-            if(value !== undefined) {
-                components.push( key + '=' + encodeURIComponent( value ) );
+            if (value !== undefined) {
+                components.push(key + '=' + encodeURIComponent(value));
             }
             return components;
-        },[]).join( '&' );
+        }, []).join('&');
         if (queryString.length > 0) {
             queryString = '?' + queryString;
         }
@@ -7571,35 +7758,38 @@ module.exports  = {
     }
 
 };
-},{}],46:[function(require,module,exports){
-var Config      = require('../../config/config');
-var mixing      = require('./mixing');
 
+},{}],48:[function(require,module,exports){
+'use strict';
 
-module.exports = function() {
-   
-    // Underscore Templates
-    _.templateSettings  = Config.TEMPLATE_SETTINGS;
+var Config = require('../../config/config');
+var mixing = require('./mixing');
 
-    // Underscore Mixing
-    _.mixin(mixing || {});
+module.exports = function () {
 
+  // Underscore Templates
+  _.templateSettings = Config.TEMPLATE_SETTINGS;
+
+  // Underscore Mixing
+  _.mixin(mixing || {});
 };
 
-},{"../../config/config":11,"./mixing":45}],47:[function(require,module,exports){
+},{"../../config/config":11,"./mixing":47}],49:[function(require,module,exports){
+'use strict';
+
 /**
  * Utility for fundation
  *
  */
 
-var Abide       = require('libs/zurb/components/abide');
+var Abide = require('libs/zurb/components/abide');
 
-module.exports  = {
+module.exports = {
 
     /**
      * Init
      */
-    init: function() {
+    init: function init() {
 
         $(document).foundation();
 
@@ -7611,53 +7801,53 @@ module.exports  = {
 
         // Tabs
         this.tabs();
-
-
     },
 
-    reflow: function() {
+    reflow: function reflow() {
 
-        // Foundation.reInit() ?
-        Foundation.reflow();
-
+        var _this = this;
+        try {
+            Foundation.reInit();
+            setTimeout(function () {
+                _this.init();
+            }, 1000);
+        } catch (e) {}
     },
 
     /**
      * Custom utility for abide
      */
-    abide: function() {
+    abide: function abide() {
 
         // Merged
-        Foundation.Abide.defaults.patterns      = _.extend(Foundation.Abide.defaults.patterns,      Abide.patterns);
-        Foundation.Abide.defaults.validators    = _.extend(Foundation.Abide.defaults.validators,    Abide.validators);
+        Foundation.Abide.defaults.patterns = _.extend(Foundation.Abide.defaults.patterns, Abide.patterns);
+        Foundation.Abide.defaults.validators = _.extend(Foundation.Abide.defaults.validators, Abide.validators);
 
         $('form[data-abide]').attr('novalidate', 'novalidate');
-
     },
 
     /**
      * Custom utility for sticky
      */
-    sticky: function() {
+    sticky: function sticky() {
 
         $('.md-topbar__sticky').unstick();
-        $('.md-topbar__sticky').sticky({topSpacing: 0});
-
+        $('.md-topbar__sticky').sticky({ topSpacing: 0 });
     },
 
     /**
      * Custom utility for tabs
      */
-    tabs: function() {
+    tabs: function tabs() {
 
-        $('body').on('change.zf.tabs', '[data-tabs]', function(e) {
-
-        });
-
+        $('body').on('change.zf.tabs', '[data-tabs]', function (e) {});
     }
 
 };
-},{"libs/zurb/components/abide":48}],48:[function(require,module,exports){
+
+},{"libs/zurb/components/abide":50}],50:[function(require,module,exports){
+'use strict';
+
 /**
  *
  * Abide
@@ -7667,7 +7857,7 @@ module.exports  = {
  * </form>
  *
  */
-module.exports   = {
+module.exports = {
 
     /*
      * CUSTOM PATTERNS
@@ -7679,7 +7869,7 @@ module.exports   = {
 
         // Only positives number
         'pint': /^[0-9]+$/,
-        
+
         // Decimal number
         'decimal': /^(?!0\d|$)\d*(\.\d{1,4})?$/,
 
@@ -7705,89 +7895,92 @@ module.exports   = {
     validators: {
 
         // Datepicker Checkin
-        'datepicker-range': function($el, required, parent) {
+        'datepicker-range': function datepickerRange($el, required, parent) {
 
-            if(!$el.val()) { // If not has val but is required
-                return (required) ? false : true;
+            if (!$el.val()) {
+                // If not has val but is required
+                return required ? false : true;
             }
 
-            var container   = $el.parents('[data-datepicker]:first');
-            var format      = ($el.attr('data-format') || 'YYYY-MM-DD').toUpperCase();
+            var container = $el.parents('[data-datepicker]:first');
+            var format = ($el.attr('data-format') || 'YYYY-MM-DD').toUpperCase();
 
             // Checkin and checkout input
-            var checkin     = ($el.hasClass('datepicker-checkin'))  ? $el   :   container.find('.datepicker-checkin:first');
-            var checkout    = ($el.hasClass('datepicker-checkout')) ? $el   :   container.find('.datepicker-checkout:first');
+            var checkin = $el.hasClass('datepicker-checkin') ? $el : container.find('.datepicker-checkin:first');
+            var checkout = $el.hasClass('datepicker-checkout') ? $el : container.find('.datepicker-checkout:first');
 
             // Values
-            var valCheckin  = checkin.val()     ? moment(checkin.val(), format)     : '';
-            var valCheckout = checkout.val()    ? moment(checkout.val(), format)    : '';
+            var valCheckin = checkin.val() ? moment(checkin.val(), format) : '';
+            var valCheckout = checkout.val() ? moment(checkout.val(), format) : '';
 
             // Boolean Valid
-            var valid       = true;
+            var valid = true;
 
-            if($el.hasClass('datepicker-checkin')) {
+            if ($el.hasClass('datepicker-checkin')) {
 
-                if(container.size() > 0 && checkout.size() === 0) { // If not exist
+                if (container.size() > 0 && checkout.size() === 0) {
+                    // If not exist
                     console.log("Missing the datepicker-checkout class into data-datepicker");
                     return false;
                 }
 
                 // If has checkout
                 if (checkout.size() > 0 && valCheckout) {
-                    if( valCheckin > valCheckout ) {
-                        valid   = false;
-                    } else if(!valCheckout) {
-                        setTimeout(function() {
+                    if (valCheckin > valCheckout) {
+                        valid = false;
+                    } else if (!valCheckout) {
+                        setTimeout(function () {
                             container.find('.datepicker-checkout:first').trigger('focus');
                         }, 500);
                     }
                 }
-
             } else {
 
-                if(container.size() > 0 && checkin.size() === 0) { // If not exist
+                if (container.size() > 0 && checkin.size() === 0) {
+                    // If not exist
                     console.log("Missing the datepicker-checkin class into datepicker-range");
-                    valid   = false;
+                    valid = false;
                 }
 
                 // If has checkout
-                if (checkin.size() > 0 && valCheckin && (valCheckin > valCheckout) ) {
-                    valid   = false;
+                if (checkin.size() > 0 && valCheckin && valCheckin > valCheckout) {
+                    valid = false;
                 }
-
             }
 
             return valid;
-
         },
 
         // Validator for input with multiple email: a@b.com, c@d.com, e@f.com
-        'multi-email': function($el, required, parent) {
+        'multi-email': function multiEmail($el, required, parent) {
 
-            if(!$el.val()) { // $el is jQuery selector
-                return (required) ? false : true; // If not has val but is required
+            if (!$el.val()) {
+                // $el is jQuery selector
+                return required ? false : true; // If not has val but is required
             }
 
-            var valid   = true;
+            var valid = true;
 
-            if($el.val()) {
-                var emails  = $el.val().split(',');
+            if ($el.val()) {
+                var emails = $el.val().split(',');
                 var pattern = Foundation.Abide.defaults.patterns.email;
-                $.each(emails, function(i, j) {
-                    if(!pattern.test( $.trim(emails[i]) )) {
-                        valid   = false;
+                $.each(emails, function (i, j) {
+                    if (!pattern.test($.trim(emails[i]))) {
+                        valid = false;
                         return false;
                     }
                 });
             }
 
             return valid;
-
         }
     }
 
 };
-},{}],49:[function(require,module,exports){
+
+},{}],51:[function(require,module,exports){
+'use strict';
+
 /**
  * Example model
  *
@@ -7802,67 +7995,71 @@ module.exports = {
     },
 
     // Method constuctor
-    initialize: function() {
+    initialize: function initialize() {},
 
-    },
-
-    getElements: function() {
+    getElements: function getElements() {
         return ['red', 'blue', 'orange', 'black', 'white', 'yellow'];
     }
 
 };
-},{}],50:[function(require,module,exports){
+
+},{}],52:[function(require,module,exports){
 module.exports = "<h2>Test 1: {{= hola }}</h2>";
 
-},{}],51:[function(require,module,exports){
-arguments[4][50][0].apply(exports,arguments)
-},{"dup":50}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
+arguments[4][52][0].apply(exports,arguments)
+},{"dup":52}],54:[function(require,module,exports){
 module.exports = "<h2>Test 2: {{= hola }}</h2>";
 
-},{}],53:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 module.exports = "<h2>Test 4 without data</h2>";
 
-},{}],54:[function(require,module,exports){
-var view        = _.template(require('./templates/index.html'));
+},{}],56:[function(require,module,exports){
+'use strict';
 
-module.exports  = {
+var view = _.template(require('./templates/index.html'));
 
-    render: function() {
+module.exports = {
+
+    render: function render() {
 
         // Load the compiled HTML into the Backbone "el"
-        this.html( view );
-
+        this.html(view);
     }
 
 };
-},{"./templates/index.html":56}],55:[function(require,module,exports){
-var view        = _.template(require('./templates/list.html'));
 
-module.exports  = {
+},{"./templates/index.html":58}],57:[function(require,module,exports){
+'use strict';
 
-    render: function() {
+var view = _.template(require('./templates/list.html'));
+
+module.exports = {
+
+    render: function render() {
 
         // Load the compiled HTML into the Backbone "el"
-        this.html( view(this.data) );
-
+        this.html(view(this.data));
     }
 
 };
-},{"./templates/list.html":57}],56:[function(require,module,exports){
+
+},{"./templates/list.html":59}],58:[function(require,module,exports){
 module.exports = "{{= App.View.Partial('test1', {hola: 'hola'}) }}\n\n<h1>Index</h1>\n\n{{= App.View.Partial('test2', {hola: 'mundo'}) }}\n\n<h1>More Partials</h1>\n\n{{= App.View.Partial('test2', {hola: 'mundo 2 repetido'}) }}\n\n{{= App.View.Partial('folder/test3', {hola: 'folder 3'}) }}\n\n{{= App.View.Partial('test4') }}";
 
-},{}],57:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 module.exports = "<h1>List {{= data }}</h1>";
 
-},{}],58:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
+'use strict';
 
 /**
  * MAIN VIEW
  */
-var Zurb        = require('libs/zurb/Zurb');
-var Bind        = require('helpers/form/bind');
+var Zurb = require('libs/zurb/Zurb');
+var Bind = require('helpers/form/bind');
 
-module.exports  = {
+module.exports = {
 
     // Array with views loaded
     viewsLoaded: [],
@@ -7870,16 +8067,15 @@ module.exports  = {
     //
     // Initialize
     //
-    initialize: function() {
+    initialize: function initialize() {
 
         this.render();
-
     },
 
     //
     // Render
     //
-    render: function() {
+    render: function render() {
 
         this.clean();
 
@@ -7889,7 +8085,6 @@ module.exports  = {
         // Push to views loaded
         //this.viewsLoaded.push(this.header);
         this.viewsLoaded.push(this.view);
-
 
         // Append Header
         //this.$el.append(this.header.el);
@@ -7904,16 +8099,15 @@ module.exports  = {
         Bind.init();
 
         return this;
-
     },
 
     //
     // Clean View
     //
-    clean: function() {
+    clean: function clean() {
 
         // Remove all views loaded previously
-        this.viewsLoaded.forEach(function(view) {
+        this.viewsLoaded.forEach(function (view) {
             view.remove();
         });
 
@@ -7921,38 +8115,39 @@ module.exports  = {
         this.undelegateEvents();
         this.$el.removeData().unbind();
         this.$el.empty();
-
     }
 
 };
 
-},{"helpers/form/bind":23,"libs/zurb/Zurb":47}],59:[function(require,module,exports){
-var view        = _.template(require('./templates/index.html'));
+},{"helpers/form/bind":25,"libs/zurb/Zurb":49}],61:[function(require,module,exports){
+'use strict';
 
-module.exports  = {
+var view = _.template(require('./templates/index.html'));
+
+module.exports = {
 
     events: {
         'submit form': 'test'
     },
 
-    render: function() {
+    render: function render() {
 
         // Load the compiled HTML into the Backbone "el"
-        this.html( view );
+        this.html(view);
 
         // Load subviews
         //this.assign('subview', '.wrapper-user');
-
     },
 
-    test: function(e) {
+    test: function test(e) {
         e.preventDefault();
         console.log('Trigger event test');
         return false;
     }
 
 };
-},{"./templates/index.html":60}],60:[function(require,module,exports){
+
+},{"./templates/index.html":62}],62:[function(require,module,exports){
 module.exports = "\n<div class=\"row\">\n    <div class=\"small-12 columns\">\n        <h1>Users hola</h1>\n        <form data-abide>\n\n            <div class=\"row\">\n                <div class=\"small-12 columns\">\n\n                    <label>Input\n                        <input type=\"text\" required name=\"model[field]\">\n                        <span class=\"form-error\">This input is required</span>\n                    </label>\n\n                </div>\n            </div>\n\n            <div class=\"row\">\n                <div class=\"small-12 columns\">\n                    <button type=\"submit\" class=\"button primary\">SAVE</button>\n                </div>\n            </div>\n\n        </form>\n\n        <div class=\"wrapper-user\"></div>\n    </div>\n</div>\n";
 
 },{}]},{},[3]);
