@@ -37,7 +37,7 @@ module.exports = {
             App.Model.Example
         ]);
 
-        App.Model.Example.toCollection().each(function (model, index, all) {
+        App.Model.Example.getCollection().each(function (model, index, all) {
             console.log(model.get("name"));
             // A
             // B

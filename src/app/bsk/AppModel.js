@@ -34,7 +34,7 @@ module.exports  = function() {
                 return true;
             },
 
-            toCollection: function() {
+            getCollection: function() {
                 return this.objCollection;
             }
 
