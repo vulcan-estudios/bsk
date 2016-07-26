@@ -153,7 +153,7 @@ module.exports = {
         var config          = {
             tagName: 'main',
             className: 'small-11 small-centered large-12',
-            data: data
+            data: data || {}
         };
 
         var View            = Backbone.View.extend(_.extend(config, toRender));
