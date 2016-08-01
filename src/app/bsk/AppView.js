@@ -42,11 +42,14 @@ module.exports = {
         }
 
         var config = {
-            el:     $(App.Config.SHELL_CONTAINER).attr('data-controller', this.controller).attr('data-action', this.action),
+            el:     $(App.Config.SHELL_CONTAINER),
             view:   this.currentView
         };
 
-        $('body').attr('data-module', this.module);
+        $('body').attr('data-module', this.module)
+        .attr('data-controller', this.controller)
+        .attr('data-action', this.action);
+
         var Main    = Backbone.View.extend(_.extend(config, Views.main));
         return new Main();
 
