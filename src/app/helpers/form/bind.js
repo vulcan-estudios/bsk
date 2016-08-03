@@ -22,7 +22,10 @@ module.exports   = {
      */
     init: function(cb) {
 
-        $('body').find('input:visible').not('readonly').not('disabled').first().trigger('focus');
+        let $input  = $('body').find(':input:visible').not('readonly').not('disabled').first();
+        setTimeout(function() {
+            $input.trigger('focus');            
+        }, ($input.parents('[data-datepicker]:first').size() > 0) ? 1000 : 500);
 
         setTimeout(function() {
 
