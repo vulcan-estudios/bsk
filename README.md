@@ -4,8 +4,9 @@ Backbone - Starter Kit for Frontend
 
 ##Table of Contents
 1. Folder Structure
-2. Instalation
-3. Gulp Task
+2. Requirements
+3. Instalation
+4. Gulp Tasks
 
 -----------------------------------
 
@@ -50,25 +51,34 @@ Backbone - Starter Kit for Frontend
     └── package.json           # Node modules
 
 
-## 2. Instalation
+## 2. Requirements
+
+1. `node >= 5`
+
+2. `ruby >= 2.0` (if you build the sass files with compass)
+
+
+## 3. Instalation
 
 Run the following commands:
 
-1. `cd folder`
+1. `sudo gem install compass sass` (if you build the sass files with compass)
 
-2. `sudo npm run install`
+2. `cd folder`
 
-3. `bower install`
+3. `sudo npm install`
 
-4. `gulp`
+4. `bower install`
 
-5. Navigate to: `http://localhost/yourproject/`
+5. `gulp`
+
+6. Navigate to: `http://localhost/yourproject/`
 
 
 -------------------------------------
 
 
-## 3. Gulp Task
+## 4. Gulp Tasks
 
 
 ### Default
