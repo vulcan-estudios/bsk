@@ -72,6 +72,8 @@ PATHS:
         #- "bower_components/moment/min/locales.min.js"
         - "bower_components/jquery.serializeJSON/jquery.serializejson.min.js"
         - "bower_components/jquery.cookie/jquery.cookie.js"
+        - "bower_components/jquery-number/jquery.number.min.js"
+        - "bower_components/jt.timepicker/jquery.timepicker.min.js"
         - "bower_components/purl/purl.js"
         - "bower_components/jquery-sticky/jquery.sticky.js"
         - "bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js"
