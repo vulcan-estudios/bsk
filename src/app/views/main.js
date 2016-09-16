@@ -33,7 +33,6 @@ module.exports  = {
         //this.viewsLoaded.push(this.header);
         this.viewsLoaded.push(this.view);
 
-
         // Append Header
         //this.$el.append(this.header.el);
 
