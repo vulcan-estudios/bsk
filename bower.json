@@ -25,6 +25,7 @@
     "blueimp-file-upload": "^9.12.5",
     "select2": "^4.0.3",
     "underscore.string": "^3.3.4",
-    "jquery-number": "~2.1.6"
+    "jquery-number": "~2.1.6",
+    "jt.timepicker": "^1.11.4"
   }
 }

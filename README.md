@@ -1,12 +1,13 @@
-#BSK
+#VS-K
 
-Backbone - Starter Kit for Frontend
+Vulcan Studios - Frontend Kit
 
 ##Table of Contents
 1. Folder Structure
 2. Requirements
 3. Instalation
 4. Gulp Tasks
+5. Docs [Español](https://docs.google.com/document/d/1DmDxEWNF6hdBahB8R-MMGuEPhd4WiBepueYlOPtrTsk)
 
 -----------------------------------
 
