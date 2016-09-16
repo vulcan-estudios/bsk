@@ -1,6 +1,6 @@
-#VS-K
+#BSK
 
-Vulcan Studios - Frontend Kit
+Vulcan Studios - Backbone Frontend Kit
 
 ##Table of Contents
 1. Folder Structure
