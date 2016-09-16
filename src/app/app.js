@@ -22,12 +22,17 @@ $(document).ready(function() {
     // Run application
     window.App  = new Application();
 
+    // Run bootstrap
     Bootstrap.init(function() {
 
         App.Router.dispatch();
 
-        // Hide loader
-        Loader.stop();
+        setTimeout(function() {
+
+            // Hide loader
+            Loader.stop();
+
+        }, 500);
 
     });
 
