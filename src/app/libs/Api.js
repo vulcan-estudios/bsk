@@ -114,8 +114,30 @@ module.exports = {
 
         }).fail(function (xhr, text) {
 
-            // Set error
-            _this.setError(endpoint, xhr, text);
+            if(xhr.status === 0) { // Aborted
+
+                // Don't make anything
+                _this.lastError     = {};
+            } else if(xhr.statusCode().status === 401) {
+
+                // Show session error
+                App.Flash.error('No haz iniciado sesión o ha caducado', function() {
+                    window.location.href = '/auth/login';
+                });
+                throw new Error('Token inválido');
+            } else if(xhr.statusCode().status === 403) {
+
+                // Show ACL error
+                App.Router.to('/', function() {
+                    App.Flash.error('Tu no posees los permisos necesarios para realizar esa acción');
+                });
+                throw new Error('Forbidden');
+            } else {
+
+                // Set error
+                _this.setError(endpoint, xhr, text);
+            }
+
         }).always(function () {
 
         });
