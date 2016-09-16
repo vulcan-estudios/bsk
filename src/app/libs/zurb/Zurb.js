@@ -30,7 +30,8 @@ module.exports  = {
 
         const _this = this;
         try {
-            Foundation.reInit();
+            //Foundation.reInit();
+            new Foundation.Abide($('body').find('form[data-abide]'));
             setTimeout(function() {
                 _this.init();
             }, 1000);
