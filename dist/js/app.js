@@ -6367,10 +6367,10 @@ module.exports = {
 
     routes: {
 
-        'notification/users': 'index',
-        'notification/users/get/:id': 'get',
-        'notification/users/list': 'list',
-        'notification/users/test/:id': 'test'
+        'notifications/users': 'index',
+        'notifications/users/get/:id': 'get',
+        'notifications/users/list': 'list',
+        'notifications/users/test/:id': 'test'
 
     },
 
