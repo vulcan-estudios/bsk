@@ -153,10 +153,10 @@ module.exports = {
 
         };
 
-        var config = {
-            tagName: 'main',
-            className: '',
-            data: data || {}
+        var config          = {
+            tagName:    'main',
+            className:  'small-11 small-centered large-12',
+            data:       data || {}
         };
 
         var View = Backbone.View.extend(_.extend(config, toRender));
@@ -212,6 +212,57 @@ module.exports = {
 
         var extSubView = Backbone.View.extend(_.extend(config, subview));
         var objSubView = new extSubView();
+        view.viewsLoaded.push(objSubView);
+        return objSubView;
+
+    },
+
+    SubView: function(view, options) {
+
+        let subview = options.view || {};
+        let data    = options.data || {};
+        let el      = options.el || '';
+
+        if(!subview['initialize']) {
+            subview.initialize = function() {
+                this.render();
+                return this;
+            };
+        }
+
+        subview.html           = function(html) {
+            this.$el.html(html);
+            if(subview.events) {
+                this.delegateEvents();
+            }
+        };
+
+        subview.append         = function(html, selector) {
+            if(typeof html === 'string') {
+                (selector) ? this.$el.find(selector).append(html) : this.$el.append(html);
+            } else {
+                this.viewsLoaded.push(html);
+                (selector) ? this.$el.find(selector).append(html.el) : this.$el.append(html.el);
+            }
+        };
+
+        subview.prepend        = function(html, selector) {
+            if(typeof html === 'string') {
+                (selector) ? this.$el.find(selector).prepend(html) : this.$el.prepend(html);
+            } else {
+                this.viewsLoaded.push(html);
+                (selector) ? this.$el.find(selector).prepend(html.el) : this.$el.prepend(html.el);
+            }
+        };
+
+        var config          = {
+            tagName:    'section',
+            el:         el,
+            data:       data || {}
+        };
+
+        var extSubView      = Backbone.View.extend(_.extend(config, subview));
+        var objSubView      = new extSubView();
         view.viewsLoaded.push(objSubView);
         return objSubView;
 

@@ -25,14 +25,14 @@ $(document).ready(function () {
     window.App = new Application();
 
     // Run bootstrap
-    Bootstrap.init(function () {
+    Bootstrap.init(function() {
 
         App.Router.dispatch();
 
-            setTimeout(function () {
+        setTimeout(function() {
 
-                // Hide loader
-                Loader.stop();
+            // Hide loader
+            Loader.stop();
 
         }, 500);
 

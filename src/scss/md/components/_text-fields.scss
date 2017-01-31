@@ -55,6 +55,10 @@ form {
 
     select {
         outline: none;
+        option {
+            padding-top: 0.125rem;
+            padding-bottom: 0.125rem;
+        }
         &:-moz-focusring {
             color: transparent;
             text-shadow: 0 0 0 #000;
@@ -160,17 +164,22 @@ form {
             top: rem-calc(19);
             input:not([type="radio"]):not([type="checkbox"]), select, textarea {
                 position: relative;
-                top: -1.75rem;
+                top: -1rem;
+                padding-top: 0rem;
+                margin-top: 0.75rem;
+                height: 1.875rem;
+                margin-bottom: 1rem;
                 &:focus, &:active, &:valid, &:hover {
                     position: relative;
-                    top: -1.75rem;
+                    top: -1rem;
                 }
             }
             textarea {
                 margin-top: 1.5rem;
             }
             select {
-                background-position: right 0rem center;
+                background-position: right -1rem center;
+                padding-right: 1rem;
             }
             .form-error {
                 position: relative;

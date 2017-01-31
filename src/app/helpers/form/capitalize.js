@@ -54,7 +54,7 @@ module.exports   = {
             var txt     = $(this).val();
             var start   = box.selectionStart;
             var end     = box.selectionEnd;
-
+            
             $(this).val(txt.replace(/^(.)|(\.+\s)(.)/g, function($word) {
                 return $word.toUpperCase();
             }));

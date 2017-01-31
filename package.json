@@ -1,10 +1,11 @@
 {
-  "name": "BSK",
-  "version": "0.0.1",
+  "name": "bsk",
+  "version": "1.0.0",
   "description": "Backbone Starter Kit",
   "main": "gulpfile.js",
   "contributors": [
-    "Iván Meléndez <argordmel@gmail.com>"
+    "Iván Meléndez <argordmel@gmail.com>",
+    "Romel Pérez (romelperez.com)"
   ],
   "repository": {
     "type": "git",

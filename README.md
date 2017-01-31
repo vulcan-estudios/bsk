@@ -1,12 +1,16 @@
-#BSK
+# BSK
 
-Backbone - Starter Kit for Frontend
+[![vulcan-estudios](https://img.shields.io/badge/vulcan_estudios-project-db8836.svg)](http://vulcanst.co)
 
-##Table of Contents
+Vulcan Studios - Backbone Frontend Kit.
+
+## Table of Contents
+
 1. Folder Structure
 2. Requirements
 3. Instalation
 4. Gulp Tasks
+5. Docs [Español](https://docs.google.com/document/d/1DmDxEWNF6hdBahB8R-MMGuEPhd4WiBepueYlOPtrTsk)
 
 -----------------------------------
 

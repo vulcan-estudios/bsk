@@ -11,9 +11,15 @@ module.exports = {
         //$('body').addClass('is-loading');
         //$('.main-loader').show();
 
+        //$('body').addClass('is-loading');
+        //$('.main-loader').show();
+
     },
 
     stop: function () {
+
+        //$('body').removeClass('is-loading');
+        //$('.main-loader').fadeOut(100);
 
         //$('body').removeClass('is-loading');
         //$('.main-loader').fadeOut(100);

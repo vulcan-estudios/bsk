@@ -9,7 +9,7 @@ module.exports  = {
 
             // Load custom models
             function(callback) {
-                callback();
+                    callback();
             }
 
         ], cb);
