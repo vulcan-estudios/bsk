@@ -1,11 +1,10 @@
-
 /**
  * MAIN VIEW
  */
-var Zurb        = require('libs/zurb/Zurb');
-var Bind        = require('helpers/form/bind');
+var Zurb = require('libs/zurb/Zurb');
+var Bind = require('helpers/form/bind');
 
-module.exports  = {
+module.exports = {
 
     // Array with views loaded
     viewsLoaded: [],
@@ -13,7 +12,7 @@ module.exports  = {
     //
     // Initialize
     //
-    initialize: function() {
+    initialize: function () {
 
         this.render();
 
@@ -22,19 +21,19 @@ module.exports  = {
     //
     // Render
     //
-    render: function() {
+    render: function () {
 
         this.clean();
 
-        // Load Header
+            // Load Header
         //this.header     = App.View.Component('header');
 
-        // Push to views loaded
+		// Push to views loaded
         //this.viewsLoaded.push(this.header);
         this.viewsLoaded.push(this.view);
 
 
-        // Append Header
+		// Append Header
         //this.$el.append(this.header.el);
 
         // Append view
@@ -53,10 +52,10 @@ module.exports  = {
     //
     // Clean View
     //
-    clean: function() {
+    clean: function () {
 
         // Remove all views loaded previously
-        this.viewsLoaded.forEach(function(view) {
+        this.viewsLoaded.forEach(function (view) {
             view.remove();
         });
 
