@@ -4,53 +4,53 @@
  * @type type
  */
 
-var Views           = require('bulk-require')(__dirname + '/..', ['./views/**/*.js']).views;
-var Partials        = require('bulk-require')(__dirname + '/..', ['./views/_shared/partials/**/*.html']).views._shared.partials || {};
-var Components      = (Views._shared) ? Views._shared.components : {};
+var Views = require('bulk-require')(__dirname + '/..', ['./views/**/*.js']).views;
+var TmpPartials = require('bulk-require')(__dirname + '/..', ['./views/_shared/partials/**/*.html']).views;
+var Partials = (TmpPartials !== undefined) ? (TmpPartials._shared.partials || {}) : {};
+var Components = (Views._shared) ? Views._shared.components : {};
 
 module.exports = {
 
     /**
      * Curent View to render
      */
-    currentView:    {},
+    currentView: {},
 
     // Views Loaded to delete zombies
-    viewsLoaded:    [],
+    viewsLoaded: [],
 
     // Current module
-    module:         '',
+    module: '',
 
     // Current controller
-    controller:     '',
+    controller: '',
 
     // Current action
-    action:         '',
-
+    action: '',
 
     /**
      * Method to run current view
      * @param {type} data
      * @returns {undefined|nm$_AppView.module.exports.Run.Main}
      */
-    Run: function() {
+    Run: function () {
 
         // Check SHELL #app
-        if($(App.Config.SHELL_CONTAINER).size() === 0) {
+        if ($(App.Config.SHELL_CONTAINER).size() === 0) {
             console.error("THE SHELL ", App.Config.SHELL_CONTAINER, " COULD NOT BE FOUND INTO THE DOCUMENT. PLEASE CHECK YOUT CONFIG FILE");
             return;
         }
 
         var config = {
-            el:     $(App.Config.SHELL_CONTAINER),
-            view:   this.currentView
+            el: $(App.Config.SHELL_CONTAINER),
+            view: this.currentView
         };
 
         $('body').attr('data-module', this.module)
-        .attr('data-controller', this.controller)
-        .attr('data-action', this.action);
+                .attr('data-controller', this.controller)
+                .attr('data-action', this.action);
 
-        var Main    = Backbone.View.extend(_.extend(config, Views.main));
+        var Main = Backbone.View.extend(_.extend(config, Views.main));
         return new Main();
 
     },
@@ -60,68 +60,68 @@ module.exports = {
      * @param {type} data
      * @returns {nm$_AppView.module.exports.Run.Main|undefined}
      */
-    Render: function() {
+    Render: function () {
 
-        var params      = arguments;
-        var data        = {};
+        var params = arguments;
+        var data = {};
 
-        var _this       = this;
+        var _this = this;
 
-        _this.module        = App.Router.module;
+        _this.module = App.Router.module;
 
-        _this.controller    = App.Router.controller;
+        _this.controller = App.Router.controller;
 
-        _this.action        = App.Router.action;
+        _this.action = App.Router.action;
 
-        if(typeof params[0] === 'string') {
-            data        = params[1] ? params[1] : {};
-            tmpPath     = App.Filter.get(params[0], 'trim', '/').split('/');
-            if(tmpPath.length > 2) {
-                _this.module        = tmpPath[0];
-                _this.controller    = tmpPath[1];
-                _this.action        = tmpPath[2];
+        if (typeof params[0] === 'string') {
+            data = params[1] ? params[1] : {};
+            tmpPath = App.Filter.get(params[0], 'trim', '/').split('/');
+            if (tmpPath.length > 2) {
+                _this.module = tmpPath[0];
+                _this.controller = tmpPath[1];
+                _this.action = tmpPath[2];
             } else {
-                _this.module        = null;
-                _this.controller    = tmpPath[0];
-                _this.action        = tmpPath[1];
+                _this.module = null;
+                _this.controller = tmpPath[0];
+                _this.action = tmpPath[1];
             }
         } else {
-            data        = params[0];
+            data = params[0];
         }
 
         // Get Path
-        var path        = (_this.module)  ? _this.module +'/'+ _this.controller +'/'+ _this.action : _this.controller +'/'+ _this.action;
+        var path = (_this.module) ? _this.module + '/' + _this.controller + '/' + _this.action : _this.controller + '/' + _this.action;
 
         try {
             // View to render
-            var toRender    = (_this.module) ? Views[_this.module][_this.controller][_this.action] : Views[_this.controller][_this.action];
-            if(!toRender) {
+            var toRender = (_this.module) ? Views[_this.module][_this.controller][_this.action] : Views[_this.controller][_this.action];
+            if (!toRender) {
                 throw "View not found";
             }
-        } catch(e) {
-            console.error('VIEW "'+_this.action+'" NOT FOUND INTO "views/'+ path +'"');
+        } catch (e) {
+            console.error('VIEW "' + _this.action + '" NOT FOUND INTO "views/' + path + '"');
             return;
         }
 
-        toRender.viewsLoaded        = [];
+        toRender.viewsLoaded = [];
 
-        if(!toRender['initialize']) {
-            toRender.initialize = function() {
+        if (!toRender['initialize']) {
+            toRender.initialize = function () {
                 this.render();
                 return this;
             };
         }
 
-        toRender.html           = function(html) {
+        toRender.html = function (html) {
             this.clean();
             this.$el.html(html);
-            if(toRender.events) {
+            if (toRender.events) {
                 this.delegateEvents();
             }
         };
 
-        toRender.append         = function(html, selector) {
-            if(typeof html === 'string') {
+        toRender.append = function (html, selector) {
+            if (typeof html === 'string') {
                 (selector) ? this.$el.find(selector).append(html) : this.$el.append(html);
             } else {
                 this.viewsLoaded.push(html);
@@ -129,8 +129,8 @@ module.exports = {
             }
         };
 
-        toRender.prepend        = function(html, selector) {
-            if(typeof html === 'string') {
+        toRender.prepend = function (html, selector) {
+            if (typeof html === 'string') {
                 (selector) ? this.$el.find(selector).prepend(html) : this.$el.prepend(html);
             } else {
                 this.viewsLoaded.push(html);
@@ -139,10 +139,10 @@ module.exports = {
         };
 
         // Clean view
-        toRender.clean      = function() {
+        toRender.clean = function () {
 
             // Remove all views loaded previously
-            this.viewsLoaded.forEach(function(view) {
+            this.viewsLoaded.forEach(function (view) {
                 view.remove();
             });
 
@@ -153,16 +153,67 @@ module.exports = {
 
         };
 
-        var config          = {
+        var config = {
             tagName: 'main',
-            className: 'small-11 small-centered large-12',
+            className: '',
             data: data || {}
         };
 
-        var View            = Backbone.View.extend(_.extend(config, toRender));
-        this.currentView    = new View();
+        var View = Backbone.View.extend(_.extend(config, toRender));
+        this.currentView = new View();
 
         return _this.Run();
+
+    },
+
+    SubView: function (view, options) {
+
+        let subview = options.view || {};
+        let data = options.data || {};
+        let el = options.el || '';
+
+        if (!subview['initialize']) {
+            subview.initialize = function () {
+                this.render();
+                return this;
+            };
+        }
+
+        subview.html = function (html) {
+            this.$el.html(html);
+            if (subview.events) {
+                this.delegateEvents();
+            }
+        };
+
+        subview.append = function (html, selector) {
+            if (typeof html === 'string') {
+                (selector) ? this.$el.find(selector).append(html) : this.$el.append(html);
+            } else {
+                this.viewsLoaded.push(html);
+                (selector) ? this.$el.find(selector).append(html.el) : this.$el.append(html.el);
+            }
+        };
+
+        subview.prepend = function (html, selector) {
+            if (typeof html === 'string') {
+                (selector) ? this.$el.find(selector).prepend(html) : this.$el.prepend(html);
+            } else {
+                this.viewsLoaded.push(html);
+                (selector) ? this.$el.find(selector).prepend(html.el) : this.$el.prepend(html.el);
+            }
+        };
+
+        var config = {
+            tagName: 'section',
+            el: el,
+            data: data || {}
+        };
+
+        var extSubView = Backbone.View.extend(_.extend(config, subview));
+        var objSubView = new extSubView();
+        view.viewsLoaded.push(objSubView);
+        return objSubView;
 
     },
 
@@ -171,42 +222,42 @@ module.exports = {
      * @param {type} name
      * @returns {undefined|nm$_AppView.module.exports.Component.Component}
      */
-    Component: function(name, data) {
+    Component: function (name, data) {
 
         // Get Folder - Component
-        var toAppendFolder  = Components[name];
+        var toAppendFolder = Components[name];
 
         // Get Component
-        var toAppend        = !toAppendFolder ? null : toAppendFolder[name];
-        if(!toAppend) {
-            console.error('COMPONENT "'+name+'" NOT FOUND INTO "views/_shared/components/" TO APPEND INTO MAIN VIEW');
+        var toAppend = !toAppendFolder ? null : toAppendFolder[name];
+        if (!toAppend) {
+            console.error('COMPONENT "' + name + '" NOT FOUND INTO "views/_shared/components/" TO APPEND INTO MAIN VIEW');
             return;
         }
 
-        if(!toAppend['initialize']) {
-            toAppend.initialize = function() {
+        if (!toAppend['initialize']) {
+            toAppend.initialize = function () {
                 this.render();
                 return this;
             };
         }
 
-        toAppend.html           = function(html) {
+        toAppend.html = function (html) {
             this.$el.html(html);
         };
 
-        toAppend.append         = function(html) {
+        toAppend.append = function (html) {
             this.$el.append(html);
         };
 
-        toAppend.prepend        = function(html) {
+        toAppend.prepend = function (html) {
             this.$el.prepend(html);
         };
 
-        var config      = {
-            data:       data
+        var config = {
+            data: data
         };
 
-        var Component   = Backbone.View.extend(_.extend(config, toAppend));
+        var Component = Backbone.View.extend(_.extend(config, toAppend));
         return new Component();
 
     },
@@ -218,19 +269,19 @@ module.exports = {
      * @param {type} data
      * @returns {Boolean}
      */
-    Partial: function(partial, data) {
+    Partial: function (partial, data) {
 
-        var tmpFolder   = partial.split('/');
-        var hasFolder   = tmpFolder.length > 1 ? true : false;
+        var tmpFolder = partial.split('/');
+        var hasFolder = tmpFolder.length > 1 ? true : false;
 
-        if(hasFolder) {
-            var html    = tmpFolder[1];
-            var folder  = tmpFolder[0];
-            partial     = Partials[folder][html];
+        if (hasFolder) {
+            var html = tmpFolder[1];
+            var folder = tmpFolder[0];
+            partial = Partials[folder][html];
         } else {
-            partial     = Partials[partial];
+            partial = Partials[partial];
         }
-        if(!partial) {
+        if (!partial) {
             console.error("PARTIAL", partial, "NOT FOUND INTO views/_shared/partials");
             return false;
         }

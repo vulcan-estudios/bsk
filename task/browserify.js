@@ -32,6 +32,7 @@ module.exports = function (gulp, plugins, config, option) {
         .transform(plugins.stringify)
         .transform(plugins.bulkify)
         .transform(plugins.babelify, {presets: config.BABEL.presets})
+        .transform(plugins.optional)
         .bundle().on('error', function (err) {
             console.log(err.stack);
             plugins.notify({

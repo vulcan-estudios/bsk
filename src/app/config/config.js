@@ -6,7 +6,13 @@
 
 var connections = require('./connections');
 
-var local       = require('./local') || {};
+var local;
+
+try {
+    local   = require('./local');
+} catch(e) {
+    local   = {};
+}
 
 module.exports = {
 
@@ -28,7 +34,7 @@ module.exports = {
     /**
      * ENABLE PUSHSTATE
      */
-    PUSHSTATE: false,
+    PUSHSTATE: true,
 
     /**
      * ROOT PATH FOR HISTORY AND PUSHSTATE
@@ -44,9 +50,9 @@ module.exports = {
      * TEMPLATE SETTINGS
      */
     TEMPLATE_SETTINGS: {
-        evaluate    : /{{([\s\S]+?)}}/g,
-        interpolate : /{{=([\s\S]+?)}}/g,
-        escape      : /{{-([\s\S]+?)}}/g
+        evaluate: /{{([\s\S]+?)}}/g,
+        interpolate: /{{=([\s\S]+?)}}/g,
+        escape: /{{-([\s\S]+?)}}/g
     }
 
 };

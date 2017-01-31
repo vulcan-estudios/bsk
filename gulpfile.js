@@ -12,6 +12,7 @@ var tasks           = requireDir('./task');
 
 // Add custom plugins
 plugins.browserify  = require('browserify');
+plugins.optional    = require('browserify-optional');
 plugins.bulkify     = require('bulkify');
 plugins.folderify   = require('folderify');
 plugins.guglify     = require('gulp-uglify');

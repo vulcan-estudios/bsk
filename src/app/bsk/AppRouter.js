@@ -102,6 +102,8 @@ module.exports = {
             }
         }
 
+        this.routes  = _.extend(this.routes, {'*notFound': 'HomeController.notMatch'});
+
         // bind backbone routes
         this._bindRoutes();
 

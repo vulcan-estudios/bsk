@@ -3,6 +3,8 @@
  *
  * @type type
  */
+var Storage         = require('libs/Storage');
+
 var Config          = require('../config/config');
 var AppRouter       = require('./AppRouter');
 var AppView         = require('./AppView');
@@ -11,6 +13,7 @@ var AppModel        = require('./AppModel');
 // Helpers
 var Flash           = require('helpers/flash/flash');
 var Form            = require('helpers/form/form');
+var Loader          = require('./AppLoader');
 
 // Modals
 var Modal           = require('helpers/modal/modal');
@@ -24,6 +27,8 @@ module.exports = function() {
     var Router      = Backbone.Router.extend(AppRouter);
 
     var App         =  {
+
+        Storage: Storage,
 
         Config: Config,
 
@@ -41,7 +46,9 @@ module.exports = function() {
 
         Modal: Modal,
 
-        Api: Api
+        Api: Api,
+
+        Loader: Loader
 
     };
 
