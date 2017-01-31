@@ -6,6 +6,7 @@
 
 
 // Components
+var Capitalize  = require('helpers/form/capitalize');
 var Counter     = require('helpers/form/counter');
 var Currency    = require('helpers/form/currency');
 var Datepicker  = require('helpers/form/datepicker');
@@ -24,10 +25,13 @@ module.exports   = {
 
         let $input  = $('body').find(':input:visible').not('readonly').not('disabled').first();
         setTimeout(function() {
-            $input.trigger('focus');            
+            $input.trigger('focus');
         }, ($input.parents('[data-datepicker]:first').size() > 0) ? 1000 : 500);
 
         setTimeout(function() {
+
+            // Bind AutoCapitalize
+            Capitalize.init();
 
             // Bind Counter
             Counter.init('[data-counter]');
@@ -42,7 +46,7 @@ module.exports   = {
             Password.init('[type="password"]');
 
             // Bind timepicker
-            Timepicker.init('[type="timepicker"]');
+            Timepicker.init('[data-timepicker]');
 
             // Bind Upload
             Upload.init('[type="file"]');

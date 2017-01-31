@@ -39,7 +39,7 @@ module.exports   = {
      * @example Form.autoload('user', { name: 'John Doe', email: 'jhondoe@example.com' }
      *
      */
-    load: function(attrs, model, form) {
+    load: function(attrs, model, form, cb) {
 
         // Each values
         $.each(attrs, function(key, value) {
@@ -125,6 +125,11 @@ module.exports   = {
             }
 
         });
+
+        if(typeof cb === 'function') {
+            cb();
+        }
+
     },
 
     /**
@@ -167,10 +172,6 @@ module.exports   = {
      */
     dbSelect: function($input, data, fields, blank, value) {
 
-        if(!data || !Array.isArray(data)) {
-            return;
-        }
-
         if(!fields) {
             fields  = {value: 'id', option: 'name'};
         }
@@ -204,6 +205,9 @@ module.exports   = {
 
         each(data, function(i, j) {
             var row         = data[i];
+            if(row === undefined) {
+                return false;
+            }
             var attrs       = fields.attrs || [];
             var pkValue     = row[fields.value] || '';
             var option;
@@ -214,15 +218,24 @@ module.exports   = {
                     tmpOption.push(row[k] || '');
                 });
                 option  = tmpOption.join(' ');
-            } else if ( /\|/.test(fields.option) ) {
-                let parts   = fields.option.split('|');
+            } else if ( /\|/.test(fields.option) || /\s/.test(fields.option) ) {
+                let parts;
+                let txtJoin = '';
+                if(fields.option.split('|').length > 1) {
+                    parts   = fields.option.split('|');
+                    txtJoin = ' | ';
+                } else if(fields.option.split(' ').length > 1) {
+                    parts   = fields.option.split(' ');
+                    txtJoin = ' ';
+                }
+
                 let opt     = [];
                 parts.forEach(function(i) {
                     if(row[i]) {
                        opt.push(row[i]);
                     }
                 });
-                option  = opt.join(' | ');
+                option  = opt.join(txtJoin);
             } else {
                 option  = row[fields.option] || '';
             }

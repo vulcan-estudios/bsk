@@ -171,21 +171,23 @@ module.exports = function () {
         $(this.menuItems).each(function() {
             var $scope  = $(this);
             if ($scope.find('.md-submenu__items').length > 0) {
-                // LocalStorage
+                // LocalStorage                
             }
         });
 
 
         // Add event
-        $('body').on('click', '.md-submenu__items-text', function() {
-            var $scope  = $(this).parent();
+        $('body').on('click', '.md-submenu__items-text', function(e) {
+            var $expanded   = $('.md-menu__items').find('.md-menu__item--expanded').not($(this).parent());
+            $expanded.removeClass('md-menu__item--expanded').addClass('md-menu__item');            
+            var $scope      = $(this).parent();
             if($scope.hasClass('md-menu__item--expanded')) {
                $scope.removeClass('md-menu__item--expanded');
                $scope.addClass('md-menu__item');
             } else {
                $scope.addClass('md-menu__item--expanded');
                $scope.removeClass('md-menu__item');
-            }
+            }                            
         });
     };
 

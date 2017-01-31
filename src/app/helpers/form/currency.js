@@ -26,9 +26,9 @@ module.exports   = {
         // Bind elements
         $(element).not('[data-plugin-loaded]').each(function() {
             if($(this).attr('data-currency') !== undefined) {
-                $(this).number(true, 2, '.', ',');
+                $(this).number(true, 0, '.', ',');
             } else {
-                $(this).number(true, 2, '.', '');
+                $(this).number(true, 2, '.', ',');
             }
             $(this).attr('data-plugin-loaded', true);
         });

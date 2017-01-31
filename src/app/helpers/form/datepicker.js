@@ -45,6 +45,7 @@ module.exports  = {
                 $input.attr('placeholder', format.toUpperCase());
             }
             var maxToday    = ($input.data('max') !== undefined) ? true : false;
+            var minToday    = ($input.data('min') !== undefined) ? true : false;
             if(range !== false && range.size() > 0) {
                 if(isCheckin) {
                     $input.attr('data-validator', 'datepicker-range');
@@ -55,17 +56,25 @@ module.exports  = {
                 if(range.find('[data-max]').size() > 0) {
                     maxToday    = true;
                 }
+                if(range.find('[data-min]').size() > 0) {
+                    minToday    = true;
+                }
             }
 
             var fdp;
             var nowTemp     = new Date();
             var now         = new Date(nowTemp.getFullYear(), nowTemp.getMonth(), nowTemp.getDate(), 0, 0, 0, 0);
             fdp = $($input).fdatepicker({
+                language: 'es',
                 format: format.toLowerCase(),
                 onRender: function (date) {
                     var este        = $('.datepicker-checkin', $($input).parents('[data-datepicker]:first'));
                     var value       = (este.size() > 0 && este.val()) ? este.val() : moment();
                     var checkin     = moment(value, format.toUpperCase()).subtract(1, 'days').toDate();
+                    if(minToday) {
+                        var tmpNow  = moment(now).subtract(1, 'days');
+                        return date.valueOf() < tmpNow.valueOf() ? 'disabled' : '';
+                    }
                     if(!maxToday) {
                         if(isCheckin) {
                             return '';
