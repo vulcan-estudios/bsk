@@ -33,33 +33,38 @@ module.exports   = {
         $(element).not('[data-plugin-loaded]').each(function() {
 
             let $input          = $(this);
+
             $input.attr('data-plugin-loaded', true);
 
             if($input.attr('id') === undefined) {
                 $input.attr('id', 'file-upload__input-'+ Date.now());
             };
 
+            let title           = $input.data('title') || 'Arrastra o selecciona una imagen';
+            $input.after(template({id: $input.attr('id'), title: title }));
+
             $input.addClass('hide file-upload-initialized');
-            $input.after(template({id: $input.attr('id') }));
 
             var $inputTarget= $('[name="'+ $input.attr('data-target') +'"]', $input.parents('div:first'));
             if($inputTarget.val()) {
-                _this._loadImageToBackground($inputTarget.val(), $input.parent());
+
+                if(_.contains(['gif', 'jpg', 'jpeg', 'png', 'jpe'], _this._extension($inputTarget.val()))) {
+                    _this._loadImageToBackground($inputTarget.val(), $input.parent());
+                } else {
+                    _this._loadFileToLink({url: $inputTarget.val(), name: $inputTarget.val().split('/').pop()}, $input.parent());
+                }
+
             }
 
-            _this.dropZone  = $input.parent().find('.file-upload:first');
-            _this.accepted  = $input.attr('accept');
-            if($input.attr('data-maxsize') !== undefined) {
-                _this.maxSize   = _this._sizeToBytes($input.attr('data-maxsize'), true);
-            }
-            _this.humanSize = _this._bytesToSize(_this.maxSize, true);
+            let dropZone    = $input.parent().find('.file-upload:first');
+            let maxSize     = $input.data('data-maxsize') ? _this._sizeToBytes($input.data('maxsize'), true) : _this._sizeToBytes('2MB', true);
 
             $input.fileupload({
 
                 dataType:           'html',
                 acceptFileTypes:    /(\.|\/)(gif|jpe?g|png)$/i,
-                maxFileSize:        _this.maxSize,
-                dropZone:           _this.dropZone,
+                maxFileSize:        maxSize,
+                dropZone:           dropZone,
                 url:                App.Filter.get(config.SERVER.host, 'rtrim', '/') + '/upload/?name='+ $input.attr('name'),
                 singleFileUploads:  true,
                 beforeSend: function(req) {
@@ -69,19 +74,25 @@ module.exports   = {
                             req.setRequestHeader(i, config.SERVER.headers[i]);
                         }
                     }
+                },
+
+                add: function(e, data) {
+
+                    // Validate file
+                    if(!_this._validate($input, data)) {
+                        return false;
+                    }
+
+                    Form.inputValid($input);
+
+                    // Start Transmition
+                    _this.start($(this));
+
+                    data.submit();
+
                 }
 
             }).bind('fileuploadadd', function (e, data) {
-
-                // Validate file
-                if(!_this._validate($input, data)) {
-                    return false;
-                }
-
-                // Start Transmition
-                _this.start($(this));
-
-                data.submit();
 
             }).bind('fileuploadprogressall', function (e, data) {
 
@@ -104,9 +115,13 @@ module.exports   = {
                     var r       = JSON.parse(tmp);
                     if (r.success === true) {
 
-                        $inputTarget.val(r.data.url);
+                        $inputTarget.val(r.data.url).trigger('change');
 
-                        _this._loadImageToBackground(r.data.url, $(this).parent());
+                        if(_.contains(['gif', 'jpg', 'jpeg', 'png', 'jpe'], _this._extension(r.data.name))) {
+                            _this._loadImageToBackground(r.data.url, $(this).parent());
+                        } else {
+                            _this._loadFileToLink(r.data, $(this).parent());
+                        }
 
                         return r;
                     } else {
@@ -176,7 +191,7 @@ module.exports   = {
 
         var container   = input.parent();
         var msg         = container.find('.file-upload__placeholder__msg');
-        msg.text('Arrastra o selecciona una imagen');
+        msg.text(input.data('title') || 'Arrastra o selecciona una imagen');
 
         var bar     = container.find('.file-upload__progressbar');
         bar.find('.progress-meter:first').fadeOut(700).css('width', '0%');
@@ -202,6 +217,20 @@ module.exports   = {
             container.css({'background-image': 'url('+ image +')', 'height': height+'px'});
             container.addClass('has-image');
         });
+
+    },
+
+    /**
+     * Load File
+     * @param {type} image
+     * @param {type} scope
+     * @returns {undefined}
+     */
+    _loadFileToLink: function(file, scope) {
+
+        var container   = $('.file-upload__content', scope);
+        container.addClass('has-file');
+        container.find('.file-upload__placeholder__msg').html(`<a href="${file.url}" target="_blank">${file.name}</a>`);
 
     },
 
@@ -244,7 +273,7 @@ module.exports   = {
     _extension: function (name) {
         var pattern = /^.+\.([^.]+)$/;
         var ext = pattern.exec(name);
-        return ext === null ? "" : ext[1];
+        return ext === null ? "" : ext[1].toLowerCase();
     },
 
     /*
@@ -257,7 +286,11 @@ module.exports   = {
 
         var _this           = this;
 
-        var acceptFileTypes = /(\.|\/)(gif|jpe?g|png)$/i;
+        // Validate images
+        var acceptImageTypes= /(\.|\/)(gif|jpe?g|png)$/i;
+
+        // Validate files
+        var acceptFileTypes = /(\.|\/)(pdf)$/i;
 
         //Validate Video
         var acceptVideoTypes = /(\.|\/)?(mkv|flv|ogg|ogv|avi|mov|wmv|mp4|mpeg|mpg|3gp?p|m4v|x-msvideo|quicktime)$/i;
@@ -268,21 +301,27 @@ module.exports   = {
             if (dataType.length === 0) {
                 dataType = _this._extension(data.originalFiles[0]['name']);
             }
-            if (_this.accepted === 'video/*') {
+
+            if ($input.attr('accept') === 'video/*') {
                 if (!acceptVideoTypes.test(dataType)) {
                     Form.inputInvalid($input, 'El video no es válido (.' + dataType + ')');
                     return false;
                 }
-            } else if (_this.accepted === 'image/*') {
-                if (!acceptFileTypes.test(dataType)) {
-                    Form.inputInvalid($input, 'El tipo de archio no es válido.');
+            } else if ($input.attr('accept') === 'image/*') {
+                if (!acceptImageTypes.test(dataType)) {
+                    Form.inputInvalid($input, 'El tipo de imagen no es válido.');
                     return false;
                 }
+            } else if(!acceptFileTypes.test(dataType)) {
+                Form.inputInvalid($input, 'El tipo de archivo no es válido.');
+                return false;
             }
             //Validate Size
-            var size = data.originalFiles[0]['size'];
-            if (size > _this.maxSize) {
-                Form.inputInvalid($input, 'El tamaño del archivo supera el permitido ' + _this.humanSize + '.');
+            let size        = data.originalFiles[0]['size'];
+            let maxSize     = $input.data('maxsize') ? _this._sizeToBytes($input.data('maxsize'), true) : _this._sizeToBytes('2MB', true);
+            let humanSize   = _this._bytesToSize(maxSize, true);
+            if (size > maxSize) {
+                Form.inputInvalid($input, 'El tamaño del archivo supera el permitido ' + humanSize + '.');
                 return false;
             }
         }

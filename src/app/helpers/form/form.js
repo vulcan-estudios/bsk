@@ -16,15 +16,29 @@ module.exports   = {
      */
     get: function($form, field) {
 
+        if(typeof $form === 'string') {
+            $form   = $($form);
+        }
+
         var data    = $form.find(':input').filter(function () {
+
             if($(this).data('currency') !== undefined) {
                 return $.number( this.value, 2, '.', ',' );
             }
             if($(this).data('decimal') !== undefined) {
                 return $.number( this.value, 2, '.', '' );
             }
+
+            var input   = $(this).attr('name') || '';
+            if(input.indexOf('_id') >= 0) {
+                if(!$(this).attr('name').indexOf(':') < 0) {
+                    $(this).attr('name', input+':string');
+                }
+            }
+
             var tmpValue    = $.trim(this.value);
             return (tmpValue) ? tmpValue : '0'; // Send zero to send empty value
+
         }).serializeJSON({checkboxUncheckedValue: "0"});
 
         return (field) ? data[field] : data;
@@ -39,7 +53,7 @@ module.exports   = {
      * @example Form.autoload('user', { name: 'John Doe', email: 'jhondoe@example.com' }
      *
      */
-    load: function(attrs, model, form, cb) {
+    load: function(attrs, model, form) {
 
         // Each values
         $.each(attrs, function(key, value) {
@@ -98,8 +112,8 @@ module.exports   = {
                 } else {
 
                     // if is datepicker
-                    if($input.data('datepicker') !== undefined) {
-                        var tmpFormat   = $input.attr('data-format') || 'MM/DD/YYYY';
+                    if($input.parents('[data-datepicker]:first').size() > 0 || $input.data('datepicker') !== undefined) {
+                        var tmpFormat   = $input.attr('data-format') || 'YYYY-MM-DD';
                         if(value.indexOf("Z") > 0) {
                             value           = (value) ? moment(value).format(tmpFormat) : '';
                         } else if(value.length > 10) {
@@ -125,11 +139,6 @@ module.exports   = {
             }
 
         });
-
-        if(typeof cb === 'function') {
-            cb();
-        }
-
     },
 
     /**
@@ -172,6 +181,10 @@ module.exports   = {
      */
     dbSelect: function($input, data, fields, blank, value) {
 
+        if(!data || !Array.isArray(data)) {
+            return;
+        }
+
         if(!fields) {
             fields  = {value: 'id', option: 'name'};
         }
@@ -205,9 +218,6 @@ module.exports   = {
 
         each(data, function(i, j) {
             var row         = data[i];
-            if(row === undefined) {
-                return false;
-            }
             var attrs       = fields.attrs || [];
             var pkValue     = row[fields.value] || '';
             var option;
@@ -218,24 +228,15 @@ module.exports   = {
                     tmpOption.push(row[k] || '');
                 });
                 option  = tmpOption.join(' ');
-            } else if ( /\|/.test(fields.option) || /\s/.test(fields.option) ) {
-                let parts;
-                let txtJoin = '';
-                if(fields.option.split('|').length > 1) {
-                    parts   = fields.option.split('|');
-                    txtJoin = ' | ';
-                } else if(fields.option.split(' ').length > 1) {
-                    parts   = fields.option.split(' ');
-                    txtJoin = ' ';
-                }
-
+            } else if ( /\|/.test(fields.option) ) {
+                let parts   = fields.option.split('|');
                 let opt     = [];
                 parts.forEach(function(i) {
                     if(row[i]) {
                        opt.push(row[i]);
                     }
                 });
-                option  = opt.join(txtJoin);
+                option  = opt.join(' | ');
             } else {
                 option  = row[fields.option] || '';
             }
