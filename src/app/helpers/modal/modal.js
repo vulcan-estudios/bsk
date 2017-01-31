@@ -37,7 +37,9 @@ module.exports = {
             onAccept:       null,
             onCancel:       null,
             onSubmit:       null,
-            template:       null
+            template:       null,
+            onOpen:         null,
+            onClose:        null
         }, opts);
 
         var $el;
@@ -80,7 +82,7 @@ module.exports = {
         }
 
         if (attrs.onSubmit) {
-            $el.on('submit', function(e) {
+            $el.on('submit', 'form', function(e) {
                 e.preventDefault();
                 attrs.onSubmit($(this), $el);
                 return false;
@@ -96,14 +98,22 @@ module.exports = {
 
         $el.on('closed.zf.reveal', function(e) {
 
+            if(attrs.onClose) {
+                attrs.onClose();
+            }
             $el.off().remove();
 
         });
 
         $el.on('open.zf.reveal', function(e) {
+
             if(attrs.onRender) {
                 attrs.onRender($el);
             }
+            if(attrs.onOpen) {
+                attrs.onOpen($el);
+            }
+
         });
 
         return $el;
