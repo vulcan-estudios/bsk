@@ -3,15 +3,15 @@ require('./libs/underscore/settings')();
 
 // BSK Start
 var Application = require('./bsk/App');
-var Loader		= require('./bsk/AppLoader');
+var Loader = require('./bsk/AppLoader');
 
 // jQuery Events
-var events		= require('helpers/events/events');
+var events = require('helpers/events/events');
 
 // Custom bootstrap
-var Bootstrap	= require('./bootstrap');
+var Bootstrap = require('./bootstrap');
 
-var Acl			= require('libs/Acl');
+var Acl = require('libs/Acl');
 
 $(document).ready(function () {
 
@@ -25,14 +25,14 @@ $(document).ready(function () {
     window.App = new Application();
 
     // Run bootstrap
-    Bootstrap.init(function() {
+    Bootstrap.init(function () {
 
         App.Router.dispatch();
 
-        setTimeout(function() {
+            setTimeout(function () {
 
-            // Hide loader
-            Loader.stop();
+                // Hide loader
+                Loader.stop();
 
         }, 500);
 

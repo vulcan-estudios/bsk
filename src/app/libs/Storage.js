@@ -33,7 +33,7 @@ module.exports  = {
     },
 
     clear: function() {
-        
+
         return window.localStorage.clear();
 
     },
