@@ -12,16 +12,25 @@ module.exports  = {
      */
     init: function() {
 
-        $(document).foundation();
+        const _this = this;
 
-        // Abide
-        this.abide();
+        // REMOVE ALL TOOLTIP
+        $('[role="tooltip"]').remove();
 
-        // Sticky
-        this.sticky();
+        setTimeout(function() {
 
-        // Tabs
-        this.tabs();
+            $(document).foundation();
+
+            // Abide
+            _this.abide();
+
+            // Sticky
+            _this.sticky();
+
+            // Tabs
+            _this.tabs();
+
+        }, 100);
 
 
     },
@@ -30,7 +39,8 @@ module.exports  = {
 
         const _this = this;
         try {
-            Foundation.reInit();
+            //Foundation.reInit();
+            new Foundation.Abide($('body').find('form[data-abide]'));
             setTimeout(function() {
                 _this.init();
             }, 1000);
